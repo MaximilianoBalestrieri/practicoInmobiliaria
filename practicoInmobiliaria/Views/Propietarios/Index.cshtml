@@ -1,0 +1,53 @@
+﻿@model List<practicoInmobiliaria.Models.Propietario>
+@{
+    ViewData["Title"] = "Propietarios";
+}
+<h2>Propietarios</h2>
+
+<!-- Botón para agregar un nuevo propietario -->
+<a href="@Url.Action("Create", "Propietarios")" class="btn btn-primary">Agregar Propietario</a>
+
+@* Mostrar mensaje si hay algún error o éxito *@
+@if (ViewBag.Mensaje != null)
+{
+    <div class="alert alert-info">@ViewBag.Mensaje</div>
+}
+
+@if (Model != null && Model.Count > 0)
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>DNI</th>
+                <th>Apellido</th>
+                <th>Nombre</th>
+                <th>Contacto</th>
+                <th>Acciones</th>  <!-- Nueva columna para las acciones -->
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var propietario in Model)
+            {
+                <tr>
+                    <td>@propietario.IdPropietario</td>
+                    <td>@propietario.DniPropietario</td>
+                    <td>@propietario.ApellidoPropietario</td>
+                    <td>@propietario.NombrePropietario</td>
+                    <td>@propietario.ContactoPropietario</td>
+                    <td>
+                        <!-- Botón para editar -->
+                        <a href="@Url.Action("Edit", "Propietarios", new { id = propietario.IdPropietario })" class="btn btn-warning">Editar</a>
+
+                        <!-- Botón para eliminar -->
+                        <a href="@Url.Action("Delete", "Propietarios", new { id = propietario.IdPropietario })" class="btn btn-danger" onclick="return confirm('¿Estás seguro de eliminar este propietario?');">Eliminar</a>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+else
+{
+    <p>No hay propietarios disponibles para mostrar.</p>
+}

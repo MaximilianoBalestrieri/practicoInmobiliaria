@@ -1,0 +1,17 @@
+﻿@{
+    Layout = null;
+}
+
+@model practicoInmobiliaria.Models.Propietario
+
+<h2>Eliminar Propietario</h2>
+
+<p>¿Está seguro de que desea eliminar al propietario @Model.NombrePropietario @Model.ApellidoPropietario?</p>
+
+@using (Html.BeginForm("Delete", "Propietarios", FormMethod.Post))
+{
+    @Html.AntiForgeryToken()
+    @Html.HiddenFor(model => model.IdPropietario)
+    <button type="submit" class="btn btn-danger">Eliminar</button>
+    <a href="@Url.Action("Index", "Propietarios")" class="btn btn-secondary">Cancelar</a>
+}

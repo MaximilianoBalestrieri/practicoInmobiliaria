@@ -1,0 +1,17 @@
+﻿@{
+    Layout = null;
+}
+
+@model practicoInmobiliaria.Models.Inquilino
+
+<h2>Eliminar Inquilino</h2>
+
+<p>¿Está seguro de que desea eliminar al inquilino @Model.NombreInquilino @Model.ApellidoInquilino?</p>
+
+@using (Html.BeginForm("Delete", "Inquilinos", FormMethod.Post))
+{
+    @Html.AntiForgeryToken()
+    @Html.HiddenFor(model => model.IdInquilino)
+    <button type="submit" class="btn btn-danger">Eliminar</button>
+    <a href="@Url.Action("Index", "Inquilinos")" class="btn btn-secondary">Cancelar</a>
+}
