@@ -544,6 +544,7 @@
     <Content Include="Content\Site.css" />
     <Content Include="Imagenes\casa.png" />
     <Content Include="Imagenes\contrato.png" />
+    <Content Include="Imagenes\edificio.png" />
     <Content Include="Imagenes\inquilino.png" />
     <Content Include="Scripts\bootstrap.bundle.js" />
     <Content Include="Scripts\bootstrap.bundle.min.js" />
@@ -587,9 +588,12 @@
     <Content Include="Views\Inquilinos\Delete.cshtml" />
     <Content Include="Views\Inquilinos\Edit.cshtml" />
     <Content Include="Views\Inquilinos\Index.cshtml" />
+    <Content Include="Views\Home\Inmuebles.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
+    <Folder Include="Views\Contratos\" />
+    <Folder Include="Views\Inmuebles\" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="Content\bootstrap.rtl.min.css.map" />
