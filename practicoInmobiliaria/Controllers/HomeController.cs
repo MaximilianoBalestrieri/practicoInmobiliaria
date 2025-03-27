@@ -36,12 +36,17 @@ namespace practicoInmobiliaria.Controllers
 
         public ActionResult Propietarios()
         {
-            return View(); // Retorna la vista Inquilinos.cshtml
+            return View(); // Retorna la vista Propietarios.cshtml
+        }
+
+        public ActionResult Inmuebles()
+        {
+            return View(); // Retorna la vista Inmuebles.cshtml
         }
 
         public ActionResult Contratos()
         {
-            return View(); // Retorna la vista Inquilinos.cshtml
+            return View(); // Retorna la vista Contratos.cshtml
         }
     }
 }
