@@ -545,6 +545,7 @@
     <Content Include="Imagenes\casa.png" />
     <Content Include="Imagenes\contrato.png" />
     <Content Include="Imagenes\edificio.png" />
+    <Content Include="Imagenes\FondoInmobiliaria2.jpg" />
     <Content Include="Imagenes\inquilino.png" />
     <Content Include="Imagenes\instagram.png" />
     <Content Include="Scripts\bootstrap.bundle.js" />
