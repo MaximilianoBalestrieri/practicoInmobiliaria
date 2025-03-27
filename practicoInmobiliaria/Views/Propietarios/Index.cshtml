@@ -27,6 +27,7 @@
             </tr>
         </thead>
         <tbody>
+
             @foreach (var propietario in Model)
             {
                 <tr>
@@ -40,7 +41,7 @@
                         <a href="@Url.Action("Edit", "Propietarios", new { id = propietario.IdPropietario })" class="btn btn-warning">Editar</a>
 
                         <!-- Botón para eliminar -->
-                        <a href="@Url.Action("Delete", "Propietarios", new { id = propietario.IdPropietario })" class="btn btn-danger" onclick="return confirm('¿Estás seguro de eliminar este propietario?');">Eliminar</a>
+                        <a href="@Url.Action("Delete", "Propietarios", new { id = propietario.IdPropietario })" class="btn btn-danger";">Eliminar</a>
                     </td>
                 </tr>
             }
