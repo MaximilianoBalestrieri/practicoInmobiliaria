@@ -263,5 +263,207 @@ namespace practicoInmobiliaria.Models
                 cmd.ExecuteNonQuery();
             }
         }
+       // private string connectionString = "server=localhost;database=inmobiliaria;uid=root;pwd=;";
+
+        // Obtener todos los inmuebles
+        public List<Inmueble> ObtenerInmuebles()
+        {
+            List<Inmueble> inmuebles = new List<Inmueble>();
+
+            try
+            {
+                conexion.Open();
+                string query = "SELECT * FROM inmueble";
+                MySqlCommand cmd = new MySqlCommand(query, conexion);
+                MySqlDataReader reader = cmd.ExecuteReader();
+
+                while (reader.Read())
+                {
+                    Inmueble inmueble = new Inmueble
+                    {
+                        IdInmueble = reader.GetInt32("idInmueble"),
+                        DniPropietario = reader.GetString("dniPropietario"),
+                        Calle = reader.GetString("calle"),
+                        Nro = reader.GetInt32("nro"),
+                        Piso = reader.GetInt32("piso"),
+                        Dpto = reader.GetString("dpto"),
+                        Localidad = reader.GetString("localidad"),
+                        Provincia = reader.GetString("provincia"),
+                        Uso = reader.GetString("uso"),
+                        Tipo = reader.GetString("tipo"),
+                        Ambientes = reader.GetInt32("ambientes"),
+                        Pileta = reader.GetBoolean("pileta"),
+                        Parrilla = reader.GetBoolean("parrilla"),
+                        Garage = reader.GetBoolean("garage"),
+                        Latitud = reader.GetDouble("latitud"),
+                        Longitud = reader.GetDouble("longitud"),
+                        Precio = reader.GetDouble("precio")
+                    };
+                    inmuebles.Add(inmueble);
+                }
+
+                reader.Close();
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine("Error al obtener los inmuebles: " + ex.Message);
+            }
+            finally
+            {
+                conexion.Close();
+            }
+
+            return inmuebles;
+        }
+
+        // Obtener inmueble por ID
+        public Inmueble ObtenerInmueblePorId(int id)
+        {
+            Inmueble inmueble = null;
+
+            try
+            {
+                using (MySqlConnection conexion = new MySqlConnection(_connectionString))
+                {
+                    string query = "SELECT * FROM inmueble WHERE idInmueble = @id";
+                    MySqlCommand cmd = new MySqlCommand(query, conexion);
+                    cmd.Parameters.AddWithValue("@id", id);
+
+                    conexion.Open();
+                    MySqlDataReader reader = cmd.ExecuteReader();
+
+                    if (reader.Read())
+                    {
+                        inmueble = new Inmueble
+                        {
+                            IdInmueble = reader.GetInt32("idInmueble"),
+                            DniPropietario = reader.GetString("dniPropietario"),
+                            Calle = reader.GetString("calle"),
+                            Nro = reader.GetInt32("nro"),
+                            Piso = reader.GetInt32("piso"),
+                            Dpto = reader.GetString("dpto"),
+                            Localidad = reader.GetString("localidad"),
+                            Provincia = reader.GetString("provincia"),
+                            Uso = reader.GetString("uso"),
+                            Tipo = reader.GetString("tipo"),
+                            Ambientes = reader.GetInt32("ambientes"),
+                            Pileta = reader.GetBoolean("pileta"),
+                            Parrilla = reader.GetBoolean("parrilla"),
+                            Garage = reader.GetBoolean("garage"),
+                            Latitud = reader.GetDouble("latitud"),
+                            Longitud = reader.GetDouble("longitud"),
+                            Precio = reader.GetDouble("precio")
+                        };
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("Error al obtener inmueble: " + ex.Message);
+            }
+
+            return inmueble;
+        }
+
+
+        // Agregar nuevo inmueble
+        // Agregar nuevo inmueble
+        public void AgregarInmueble(Inmueble inmueble)
+        {
+            using (MySqlConnection conexion = new MySqlConnection(_connectionString))
+            {
+                string query = @"INSERT INTO inmueble 
+        (dniPropietario, calle, nro, piso, dpto, localidad, provincia, uso, tipo, ambientes, pileta, parrilla, garage, latitud, longitud, precio) 
+        VALUES 
+        (@dni, @calle, @nro, @piso, @dpto, @localidad, @provincia, @uso, @tipo, @ambientes, @pileta, @parrilla, @garage, @latitud, @longitud, @precio)";
+
+                MySqlCommand cmd = new MySqlCommand(query, conexion);
+
+                cmd.Parameters.AddWithValue("@dni", inmueble.DniPropietario);
+                cmd.Parameters.AddWithValue("@calle", inmueble.Calle);
+                cmd.Parameters.AddWithValue("@nro", inmueble.Nro);
+                cmd.Parameters.AddWithValue("@piso", inmueble.Piso);
+                cmd.Parameters.AddWithValue("@dpto", inmueble.Dpto);
+                cmd.Parameters.AddWithValue("@localidad", inmueble.Localidad);
+                cmd.Parameters.AddWithValue("@provincia", inmueble.Provincia);
+                cmd.Parameters.AddWithValue("@uso", inmueble.Uso);
+                cmd.Parameters.AddWithValue("@tipo", inmueble.Tipo);
+                cmd.Parameters.AddWithValue("@ambientes", inmueble.Ambientes);
+                cmd.Parameters.AddWithValue("@pileta", inmueble.Pileta);
+                cmd.Parameters.AddWithValue("@parrilla", inmueble.Parrilla);
+                cmd.Parameters.AddWithValue("@garage", inmueble.Garage);
+                cmd.Parameters.AddWithValue("@latitud", inmueble.Latitud);
+                cmd.Parameters.AddWithValue("@longitud", inmueble.Longitud);
+                cmd.Parameters.AddWithValue("@precio", inmueble.Precio);
+
+                conexion.Open();
+                cmd.ExecuteNonQuery();
+            }
+        }
+
+
+        // Actualizar inmueble existente
+        public void ActualizarInmueble(Inmueble inmueble)
+        {
+            using (MySqlConnection conexion = new MySqlConnection(_connectionString))
+            {
+                string query = @"UPDATE inmueble SET 
+            dniPropietario = @dni,
+            calle = @calle,
+            nro = @nro,
+            piso = @piso,
+            dpto = @dpto,
+            localidad = @localidad,
+            provincia = @provincia,
+            uso = @uso,
+            tipo = @tipo,
+            ambientes = @ambientes,
+            pileta = @pileta,
+            parrilla = @parrilla,
+            garage = @garage,
+            latitud = @latitud,
+            longitud = @longitud,
+            precio = @precio
+        WHERE idInmueble = @id";
+
+                MySqlCommand cmd = new MySqlCommand(query, conexion);
+
+                cmd.Parameters.AddWithValue("@id", inmueble.IdInmueble);
+                cmd.Parameters.AddWithValue("@dni", inmueble.DniPropietario);
+                cmd.Parameters.AddWithValue("@calle", inmueble.Calle);
+                cmd.Parameters.AddWithValue("@nro", inmueble.Nro);
+                cmd.Parameters.AddWithValue("@piso", inmueble.Piso);
+                cmd.Parameters.AddWithValue("@dpto", inmueble.Dpto);
+                cmd.Parameters.AddWithValue("@localidad", inmueble.Localidad);
+                cmd.Parameters.AddWithValue("@provincia", inmueble.Provincia);
+                cmd.Parameters.AddWithValue("@uso", inmueble.Uso);
+                cmd.Parameters.AddWithValue("@tipo", inmueble.Tipo);
+                cmd.Parameters.AddWithValue("@ambientes", inmueble.Ambientes);
+                cmd.Parameters.AddWithValue("@pileta", inmueble.Pileta);
+                cmd.Parameters.AddWithValue("@parrilla", inmueble.Parrilla);
+                cmd.Parameters.AddWithValue("@garage", inmueble.Garage);
+                cmd.Parameters.AddWithValue("@latitud", inmueble.Latitud);
+                cmd.Parameters.AddWithValue("@longitud", inmueble.Longitud);
+                cmd.Parameters.AddWithValue("@precio", inmueble.Precio);
+
+                conexion.Open();
+                cmd.ExecuteNonQuery();
+            }
+        }
+
+        // Eliminar inmueble por ID
+        public void EliminarInmueble(int id)
+        {
+            using (MySqlConnection conexion = new MySqlConnection(_connectionString))
+            {
+                string query = "DELETE FROM inmueble WHERE idInmueble = @id";
+                MySqlCommand cmd = new MySqlCommand(query, conexion);
+                cmd.Parameters.AddWithValue("@id", id);
+
+                conexion.Open();
+                cmd.ExecuteNonQuery();
+            }
+        }
+
     }
 }

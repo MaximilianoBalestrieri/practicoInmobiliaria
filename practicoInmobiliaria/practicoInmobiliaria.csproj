@@ -509,12 +509,14 @@
     <Compile Include="App_Start\BundleConfig.cs" />
     <Compile Include="App_Start\FilterConfig.cs" />
     <Compile Include="App_Start\RouteConfig.cs" />
+    <Compile Include="Controllers\InmueblesController.cs" />
     <Compile Include="Controllers\HomeController.cs" />
     <Compile Include="Controllers\InquilinosController.cs" />
     <Compile Include="Controllers\PropietariosController.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
+    <Compile Include="Models\Inmueble.cs" />
     <Compile Include="Models\ConexionDB.cs" />
     <Compile Include="Models\Inquilino.cs" />
     <Compile Include="Models\Propietario.cs" />
@@ -592,11 +594,14 @@
     <Content Include="Views\Inquilinos\Edit.cshtml" />
     <Content Include="Views\Inquilinos\Index.cshtml" />
     <Content Include="Views\Home\Inmuebles.cshtml" />
+    <Content Include="Views\Inmuebles\Index.cshtml" />
+    <Content Include="Views\Inmuebles\Create.cshtml" />
+    <Content Include="Views\Inmuebles\Edit.cshtml" />
+    <Content Include="Views\Inmuebles\Delete.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
     <Folder Include="Views\Contratos\" />
-    <Folder Include="Views\Inmuebles\" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="Content\bootstrap.rtl.min.css.map" />

@@ -20,8 +20,6 @@ namespace practicoInmobiliaria.Controllers
             return View();
         }
 
-
-
         public ActionResult Contact()
         {
             ViewBag.Message = "CONTACTO";

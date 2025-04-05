@@ -1,0 +1,105 @@
+﻿@model List<practicoInmobiliaria.Models.Inmueble>
+@{
+    ViewData["Title"] = "Inmuebles";
+}
+
+<style>
+    thead {
+        background-color: black;
+        color: white;
+    }
+
+    table {
+        padding: 10px;
+        border-collapse: separate;
+        border-spacing: 0;
+        border-radius: 5px;
+        overflow: hidden;
+    }
+
+    thead tr:first-child th:first-child {
+        border-top-left-radius: 5px;
+    }
+
+    thead tr:first-child th:last-child {
+        border-top-right-radius: 5px;
+    }
+
+    th, td {
+        padding: 5px 10px;
+        font-size: 14px;
+    }
+
+    tr {
+        height: 30px;
+    }
+</style>
+
+<h2>Inmuebles</h2>
+
+<a href="@Url.Action("Create", "Inmuebles")" class="btn btn-primary mb-3">Agregar Inmueble</a>
+
+@if (ViewBag.Mensaje != null)
+{
+    <div class="alert alert-info">@ViewBag.Mensaje</div>
+}
+
+@if (Model != null && Model.Count > 0)
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>DNI Propietario</th>
+                <th>Calle</th>
+                <th>Número</th>
+                <th>Piso</th>
+                <th>Dpto</th>
+                <th>Localidad</th>
+                <th>Provincia</th>
+                <th>Uso</th>
+                <th>Tipo</th>
+                <th>Ambientes</th>
+                <th>Pileta</th>
+                <th>Parrilla</th>
+                <th>Garage</th>
+                <th>Latitud</th>
+                <th>Longitud</th>
+                <th>Precio</th>
+                <th>Acciones</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var inmueble in Model)
+            {
+                <tr>
+                    <td>@inmueble.IdInmueble</td>
+                    <td>@inmueble.DniPropietario</td>
+                    <td>@inmueble.Calle</td>
+                    <td>@inmueble.Nro</td>
+                    <td>@inmueble.Piso</td>
+                    <td>@inmueble.Dpto</td>
+                    <td>@inmueble.Localidad</td>
+                    <td>@inmueble.Provincia</td>
+                    <td>@inmueble.Uso</td>
+                    <td>@inmueble.Tipo</td>
+                    <td>@inmueble.Ambientes</td>
+                    <td>@(inmueble.Pileta ? "Sí" : "No")</td>
+                    <td>@(inmueble.Parrilla ? "Sí" : "No")</td>
+                    <td>@(inmueble.Garage ? "Sí" : "No")</td>
+                    <td>@inmueble.Latitud</td>
+                    <td>@inmueble.Longitud</td>
+                    <td>$@inmueble.Precio</td>
+                    <td>
+                        <a href="@Url.Action("Edit", "Inmuebles", new { id = inmueble.IdInmueble })" class="btn btn-warning btn-sm">Editar</a>
+                        <a href="@Url.Action("Delete", "Inmuebles", new { id = inmueble.IdInmueble })" class="btn btn-danger btn-sm">Eliminar</a>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+else
+{
+    <p>No hay inmuebles disponibles para mostrar.</p>
+}
