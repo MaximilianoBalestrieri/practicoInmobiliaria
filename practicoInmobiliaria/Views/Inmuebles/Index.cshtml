@@ -33,6 +33,46 @@
     tr {
         height: 30px;
     }
+
+    .tabla-personalizada tbody tr:nth-child(odd) {
+        background-color: #f2f2f2; /* gris clarito */
+    }
+
+    .tabla-personalizada tbody tr:nth-child(even) {
+        background-color: #ffffff; /* blanco */
+    }
+
+    .tabla-personalizada thead {
+        background-color: black !important;
+        color: white !important;
+    }
+
+    .tabla-personalizada {
+        padding: 10px;
+        border-collapse: separate;
+        border-spacing: 0;
+        border-radius: 5px;
+        overflow: hidden;
+    }
+
+        .tabla-personalizada thead tr:first-child th:first-child {
+            border-top-left-radius: 5px;
+        }
+
+        .tabla-personalizada thead tr:first-child th:last-child {
+            border-top-right-radius: 5px;
+        }
+
+        .tabla-personalizada th,
+        .tabla-personalizada td {
+            padding: 8px 12px;
+            font-size: 16px; 
+        }
+
+
+        .tabla-personalizada tr {
+            height: 25px;
+        }
 </style>
 
 <h2>Inmuebles</h2>
@@ -46,10 +86,10 @@
 
 @if (Model != null && Model.Count > 0)
 {
-    <table class="table">
+    <table class="tabla-personalizada">
         <thead>
             <tr>
-                <th>ID</th>
+                <!-- <th>ID</th> -->
                 <th>DNI Propietario</th>
                 <th>Calle</th>
                 <th>Número</th>
@@ -57,49 +97,162 @@
                 <th>Dpto</th>
                 <th>Localidad</th>
                 <th>Provincia</th>
-                <th>Uso</th>
-                <th>Tipo</th>
-                <th>Ambientes</th>
-                <th>Pileta</th>
-                <th>Parrilla</th>
-                <th>Garage</th>
-                <th>Latitud</th>
-                <th>Longitud</th>
+                <!--      <th>Uso</th> -->
+                <!--      <th>Tipo</th> -->
+                <!--      <th>Ambientes</th> -->
+                <!--      <th>Pileta</th-->
+                <!--      <th>Parrilla</th>
+                <!--      <th>Garage</th>-->
+                <!--     <th>Latitud</th>-->
+                <!--     <th>Longitud</th>-->
                 <th>Precio</th>
                 <th>Acciones</th>
             </tr>
-        </thead>
-        <tbody>
-            @foreach (var inmueble in Model)
-            {
-                <tr>
-                    <td>@inmueble.IdInmueble</td>
-                    <td>@inmueble.DniPropietario</td>
-                    <td>@inmueble.Calle</td>
-                    <td>@inmueble.Nro</td>
-                    <td>@inmueble.Piso</td>
-                    <td>@inmueble.Dpto</td>
-                    <td>@inmueble.Localidad</td>
-                    <td>@inmueble.Provincia</td>
-                    <td>@inmueble.Uso</td>
-                    <td>@inmueble.Tipo</td>
-                    <td>@inmueble.Ambientes</td>
-                    <td>@(inmueble.Pileta ? "Sí" : "No")</td>
-                    <td>@(inmueble.Parrilla ? "Sí" : "No")</td>
-                    <td>@(inmueble.Garage ? "Sí" : "No")</td>
-                    <td>@inmueble.Latitud</td>
-                    <td>@inmueble.Longitud</td>
-                    <td>$@inmueble.Precio</td>
-                    <td>
-                        <a href="@Url.Action("Edit", "Inmuebles", new { id = inmueble.IdInmueble })" class="btn btn-warning btn-sm">Editar</a>
-                        <a href="@Url.Action("Delete", "Inmuebles", new { id = inmueble.IdInmueble })" class="btn btn-danger btn-sm">Eliminar</a>
-                    </td>
-                </tr>
-            }
-        </tbody>
-    </table>
-}
-else
-{
-    <p>No hay inmuebles disponibles para mostrar.</p>
-}
+            </thead>
+            <tbody>
+                @foreach (var inmueble in Model)
+                {
+                    <tr>
+                        <!-- <td>@inmueble.IdInmueble</td>-->
+                        <td>
+                            <a href="#" class="ver-propietario" data-dni="@inmueble.DniPropietario">@(inmueble.DniPropietario)</a>
+                        </td>
+                        <td>@inmueble.Calle</td>
+                        <td>@inmueble.Nro</td>
+                        <td>@inmueble.Piso</td>
+                        <td>@inmueble.Dpto</td>
+                        <td>@inmueble.Localidad</td>
+                        <td>@inmueble.Provincia</td>
+                        <!--  td>@inmueble.Uso</td>-->
+                        <!--  <td>@inmueble.Tipo</td>-->
+                        <!--  <td>@inmueble.Ambientes</td>-->
+                        <!--  <td>@(inmueble.Pileta ? "Sí" : "No")</td>-->
+                        <!--  <td>@(inmueble.Parrilla ? "Sí" : "No")</td>-->
+                        <!--  <td>@(inmueble.Garage ? "Sí" : "No")</td>-->
+                        <!--  <td>@inmueble.Latitud</td>-->
+                        <!--  <td>@inmueble.Longitud</td>-->
+                        <td>$@inmueble.Precio</td>
+                        <td>
+                            <a href="@Url.Action("Edit", "Inmuebles", new { id = inmueble.IdInmueble })" class="btn btn-warning btn-sm">Editar</a>
+                            <a href="@Url.Action("Delete", "Inmuebles", new { id = inmueble.IdInmueble })" class="btn btn-danger btn-sm">Eliminar</a>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    }
+    else
+    {
+        <p>No hay inmuebles disponibles para mostrar.</p>
+    }
+
+    <!-- Modal Bootstrap 5 -->
+                <div class="modal fade" id="modalPropietario" tabindex="-1" aria-labelledby="modalPropietarioLabel" aria-hidden="true">
+                    <div class="modal-dialog modal-dialog-centered">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="modalPropietarioLabel">Datos del Propietario</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                            </div>
+                            <div class="modal-body">
+                                <p><strong>DNI:</strong> <span id="dniModal"></span></p>
+                                <p><strong>Apellido:</strong> <span id="apellidoModal"></span></p>
+                                <p><strong>Nombre:</strong> <span id="nombreModal"></span></p>
+                                <p><strong>Celular:</strong> <span id="celularModal"></span></p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Modal de búsqueda de propietario -->
+                <div class="modal fade" id="modalBuscarPropietario" tabindex="-1" aria-labelledby="modalBuscarPropietarioLabel" aria-hidden="true">
+                    <div class="modal-dialog modal-lg">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="modalBuscarPropietarioLabel">Buscar Propietario</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                            </div>
+                            <div class="modal-body">
+                                <div class="input-group mb-3">
+                                    <input type="text" id="busquedaPropietario" class="form-control" placeholder="Buscar por DNI, Apellido o Nombre">
+                                    <button type="button" class="btn btn-primary" onclick="buscarPropietarios()">Buscar</button>
+
+                                </div>
+                                <table class="table table-bordered">
+                                    <thead>
+                                        <tr>
+                                            <th>DNI</th>
+                                            <th>Nombre</th>
+                                            <th>Acción</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="resultadoBusquedaPropietario">
+                                        <!-- Aquí se cargan los resultados -->
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+
+                @section Scripts {
+                    <script>
+                        $(document).ready(function () {
+                            $(".ver-propietario").on("click", function (e) {
+                                e.preventDefault();
+                                var dni = $(this).data("dni");
+                                console.log("DNI clickeado:", dni); // Ver si llega
+
+                                // Este es el bloque que deberías reemplazar o actualizar:
+                                $.get("/Propietarios/ObtenerPorDni", { dni: dni }, function (data) {
+                                    console.log("Datos recibidos del servidor:", data);
+                                    if (data) {
+                                        $("#dniModal").text(data.dniPropietario);
+                                        $("#apellidoModal").text(data.apellidoPropietario);
+                                        $("#nombreModal").text(data.nombrePropietario);
+                                        $("#celularModal").text(data.contactoPropietario);
+
+                                        var modal = new bootstrap.Modal(document.getElementById('modalPropietario'));
+                                        modal.show();
+                                    } else {
+                                        alert("No se encontraron datos del propietario.");
+                                    }
+                                });
+                            });
+                        });
+
+                        function buscarPropietarios() {
+                            const termino = document.getElementById("terminoBusqueda").value;
+
+                            fetch(`/Propietarios/Buscar?termino=${encodeURIComponent(termino)}`)
+                                .then(response => response.json())
+                                .then(data => {
+                                    const lista = document.getElementById("listaPropietarios");
+                                    lista.innerHTML = "";
+                                    data.forEach(p => {
+                                        const row = document.createElement("tr");
+                                        row.innerHTML = `
+                                                                                                                                                                                                                                                                                                                                <td>${p.dniPropietario}</td>
+                                                                                                                                                                                                                                                                                                                                <td>${p.apellidoPropietario}</td>
+                                                                                                                                                                                                                                                                                                                                <td>${p.nombrePropietario}</td>
+                                                                                                                                                                                                                                                                                                                                <td><button class="btn btn-success" onclick="seleccionarPropietario('${p.dniPropietario}')">Seleccionar</button></td>
+                                                                                                                                                                                                                                                                                                                            `;
+                                        lista.appendChild(row);
+                                    });
+                                });
+                        }
+
+
+                        // Insertar el DNI al input
+                        $(document).on("click", ".seleccionar-propietario", function () {
+                            var dniSeleccionado = $(this).data("dni");
+                            $("#dniPropietarioInput").val(dniSeleccionado);
+                            var modal = bootstrap.Modal.getInstance(document.getElementById('modalBuscarPropietario'));
+                            modal.hide();
+                        });
+
+                    </script>
+                }
+
+

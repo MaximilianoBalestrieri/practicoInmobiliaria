@@ -98,6 +98,53 @@ namespace practicoInmobiliaria.Controllers
             ViewBag.Mensaje = "Propietario eliminado exitosamente.";
             return RedirectToAction("Index");
         }
+        private ConexionDB conexionDB = new ConexionDB(); // o por inyección si usás DI
+
+        [HttpGet]
+        public JsonResult ObtenerPorDni(string dni)
+        {
+            try
+            {
+                int dniInt = int.Parse(dni); // conversión de string a int
+                ConexionDB conexion = new ConexionDB();
+                var propietario = conexion.ObtenerPropietarioPorDni(dniInt); // ahora sí le pasás un int
+
+                if (propietario != null)
+                {
+                    return Json(new
+                    {
+                        dniPropietario = propietario.DniPropietario,
+                        apellidoPropietario = propietario.ApellidoPropietario,
+                        nombrePropietario = propietario.NombrePropietario,
+                        contactoPropietario = propietario.ContactoPropietario
+                    }, JsonRequestBehavior.AllowGet);
+                }
+
+                return Json(null, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                return Json(new { error = ex.Message }, JsonRequestBehavior.AllowGet);
+            }
+        }
+
+
+        [HttpGet]
+        public JsonResult Buscar(string termino)
+        {
+            var propietarios = conexionDB.BuscarPropietarios(termino);
+            return Json(propietarios, JsonRequestBehavior.AllowGet);
+        }
+
+
+
+
+
+
+
+
 
     }
+
+
 }

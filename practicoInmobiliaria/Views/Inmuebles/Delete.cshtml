@@ -56,7 +56,9 @@
     </dl>
 </div>
 
-<form asp-action="DeleteConfirmed" asp-route-id="@Model.IdInmueble" method="post">
+<form asp-action="Delete" asp-route-id="@Model.IdInmueble" method="post">
+    @Html.AntiForgeryToken()  <!-- ESTA LÍNEA ES LA CLAVE -->
+
     <input type="hidden" asp-for="IdInmueble" />
     <button type="submit" class="btn btn-danger">Eliminar</button>
     <a href="@Url.Action("Index", "Inmuebles")" class="btn btn-secondary">Cancelar</a>

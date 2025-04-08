@@ -73,12 +73,16 @@ namespace practicoInmobiliaria.Controllers
         }
 
         // POST: Inmuebles/Delete/5
-        [HttpPost, ActionName("Eliminar")]
+        [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult EliminarConfirmado(int id)
+        public ActionResult Delete(int id, FormCollection form)
         {
             conexionDB.EliminarInmueble(id);
             return RedirectToAction("Index");
         }
+
+
+
+
     }
 }

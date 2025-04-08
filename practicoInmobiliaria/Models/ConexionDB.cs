@@ -5,6 +5,7 @@ using System.Linq;
 using System.Web;
 using MySql.Data.MySqlClient;
 
+
 namespace practicoInmobiliaria.Models
 {
     public class ConexionDB
@@ -25,6 +26,8 @@ namespace practicoInmobiliaria.Models
             _connectionString = $"Server={servidor}; database={baseDatos}; UID={usuario}; password={contrasena};";
             conexion = new MySqlConnection(_connectionString);
         }
+
+      
 
         // Método para obtener todos los propietarios desde la base de datos
         public List<Propietario> ObtenerPropietarios()
@@ -451,7 +454,6 @@ namespace practicoInmobiliaria.Models
             }
         }
 
-        // Eliminar inmueble por ID
         public void EliminarInmueble(int id)
         {
             using (MySqlConnection conexion = new MySqlConnection(_connectionString))
@@ -464,6 +466,136 @@ namespace practicoInmobiliaria.Models
                 cmd.ExecuteNonQuery();
             }
         }
+
+
+
+        public Propietario ObtenerPropietarioPorDni(int dni)
+        {
+            Propietario propietario = null;
+
+            using (MySqlConnection conn = new MySqlConnection(_connectionString))
+            {
+                conn.Open();
+                string query = "SELECT * FROM propietario WHERE dniPropietario = @dni";
+                MySqlCommand cmd = new MySqlCommand(query, conn);
+                cmd.Parameters.AddWithValue("@dni", dni);
+
+                using (var reader = cmd.ExecuteReader())
+                {
+                    if (reader.Read())
+                    {
+                        propietario = new Propietario
+                        {
+                            DniPropietario = reader.GetString("DniPropietario"),
+                            ApellidoPropietario = reader.GetString("ApellidoPropietario"),
+                            NombrePropietario = reader.GetString("NombrePropietario"),
+                            ContactoPropietario = reader.GetString("ContactoPropietario")
+
+                        };
+                    }
+                }
+            }
+
+            return propietario;
+        }
+
+        public MySqlConnection ObtenerConexion()
+        {
+            return new MySqlConnection(_connectionString);
+        }
+        public List<Propietario> BuscarPropietariosPorNombreODni(string filtro)
+        {
+            List<Propietario> lista = new List<Propietario>();
+
+            using (var connection = ObtenerConexion())
+            {
+                connection.Open();
+                string query = @"SELECT *
+                         FROM Propietario 
+                         WHERE dniPropietario LIKE @filtro OR 
+                               apellidoPropietario LIKE @filtro OR 
+                               nombrePropietario LIKE @filtro";
+
+                using (var cmd = new MySqlCommand(query, connection))
+                {
+                    cmd.Parameters.AddWithValue("@filtro", "%" + filtro + "%");
+                    using (var reader = cmd.ExecuteReader())
+                    {
+                        while (reader.Read())
+                        {
+                            lista.Add(new Propietario
+                            {
+                                DniPropietario = reader.GetString("DniPropietario"),
+                                ApellidoPropietario = reader.GetString("ApellidoPropietario"),
+                                NombrePropietario = reader.GetString("NombrePropietario"),
+                                ContactoPropietario = reader.GetString("ContactoPropietario")
+                            });
+                        }
+                    }
+                }
+            }
+
+            return lista;
+        }
+
+        public List<Propietario> BuscarPropietarios(string termino)
+        {
+            List<Propietario> lista = new List<Propietario>();
+
+            using (MySqlConnection connection = new MySqlConnection(_connectionString))
+            {
+                connection.Open();
+                string query = @"SELECT * FROM Propietario 
+                         WHERE dniPropietario LIKE @termino OR 
+                               nombrePropietario LIKE @termino OR 
+                               apellidoPropietario LIKE @termino";
+
+                using (MySqlCommand command = new MySqlCommand(query, connection))
+                {
+                    command.Parameters.AddWithValue("@termino", "%" + termino + "%");
+
+                    using (MySqlDataReader reader = command.ExecuteReader())
+                    {
+                        while (reader.Read())
+                        {
+                            lista.Add(new Propietario
+                            {
+                                DniPropietario = reader.GetString("dniPropietario"),
+                                ApellidoPropietario = reader.GetString("apellidoPropietario"),
+                                NombrePropietario = reader.GetString("nombrePropietario"),
+                                ContactoPropietario = reader.GetString("contactoPropietario")
+                            });
+                        }
+                    }
+                }
+            }
+
+            return lista;
+        }
+
+
+        public List<Propietario> ListarPropietarios()
+        {
+            List<Propietario> lista = new List<Propietario>();
+            using (var conexion = ObtenerConexion())
+            {
+                conexion.Open();
+                var comando = new MySqlCommand("SELECT * FROM propietario", conexion);
+                var reader = comando.ExecuteReader();
+                while (reader.Read())
+                {
+                    lista.Add(new Propietario
+                    {
+                        DniPropietario = reader.GetString("dniPropietario"),
+                        ApellidoPropietario = reader.GetString("apellidoPropietario"),
+                        NombrePropietario = reader.GetString("nombrePropietario"),
+                        ContactoPropietario = reader.GetString("contactoPropietario")
+                    });
+                }
+            }
+            return lista;
+        }
+
 
     }
 }
