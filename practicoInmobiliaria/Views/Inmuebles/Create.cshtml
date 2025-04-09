@@ -21,99 +21,157 @@
             border-radius: 5px;
             text-align: center;
         }
+
+        .modal-content * {
+            font-size: 0.7rem !important;
+        }
+
+        .modal-content .btn {
+            font-size: 0.75rem !important;
+            padding: 0.25rem 0.5rem !important;
+        }
+
+        .modal-content input,
+        .modal-content table {
+            font-size: 0.7rem !important;
+        }
+        .formulario-chico {
+            font-size: 0.75rem !important;
+        }
+
+            .formulario-chico .form-control,
+            .formulario-chico .form-check-label,
+            .formulario-chico .form-check-input,
+            .formulario-chico .btn {
+                font-size: 0.75rem !important;
+            }
+
+            .formulario-chico h2 {
+                font-size: 1.2rem !important;
+            }
+
+            .formulario-chico label {
+                font-size: 0.75rem !important;
+            }
+
+            .formulario-chico .btn-lg {
+                font-size: 0.8rem !important;
+                padding: 0.5rem 1rem !important;
+            }
+
+            /* Achicar el margen inferior entre inputs */
+            .formulario-chico .mb-3 {
+                margin-bottom: 0.3rem !important;
+            }
+
+            /* Ajustar separación entre filas si hace falta */
+            .formulario-chico .row {
+                margin-bottom: 0.5rem !important;
+            }
     </style>
+
 </head>
 <body>
     <div class="container my-5">
         <div class="card shadow-lg w-75 mx-auto">
-            <div class="card-body">
+            <div class="card-body formulario-chico">
                 <h2 class="titulo-formulario mb-4">Agregar Inmueble</h2>
 
                 @using (Html.BeginForm("Create", "Inmuebles", FormMethod.Post, new { @class = "needs-validation", novalidate = "novalidate" }))
                 {
                     @Html.AntiForgeryToken()
 
-                    <div class="row">
+                    <!-- Línea 1: DNI + botón Buscar -->
+                    <div class="row align-items-end">
                         <div class="col-md-4 mb-3">
                             <label class="form-label">DNI Propietario</label>
                             @Html.TextBoxFor(model => model.DniPropietario, new { @class = "form-control", type = "number", id = "dniPropietarioInput" })
                             @Html.ValidationMessageFor(model => model.DniPropietario, "", new { @class = "text-danger" })
                             <small id="nombrePropietarioSeleccionado" class="text-muted d-block mt-1"></small>
                         </div>
-
-                        <div class="col-md-4 mb-3 d-flex align-items-end">
+                        <div class="col-auto mb-3">
                             <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#modalBuscarPropietario">
                                 Buscar Propietario
                             </button>
                         </div>
+                    </div>
 
+                    <!-- Línea 2: Calle, Nro, Piso, Dpto, Localidad -->
+                    <div class="row">
                         <div class="col-md-4 mb-3">
                             <label class="form-label">Calle</label>
                             @Html.TextBoxFor(model => model.Calle, new { @class = "form-control" })
                             @Html.ValidationMessageFor(model => model.Calle, "", new { @class = "text-danger" })
                         </div>
-                        <div class="col-md-4 mb-3">
+                        <div class="col-md-2 mb-3">
                             <label class="form-label">Número</label>
-                            @Html.TextBoxFor(model => model.Nro, new { @class = "form-control" })
+                            @Html.TextBoxFor(model => model.Nro, new { @class = "form-control", maxlength = "4" })
                             @Html.ValidationMessageFor(model => model.Nro, "", new { @class = "text-danger" })
                         </div>
-                        <div class="col-md-4 mb-3">
+                        <div class="col-md-2 mb-3">
                             <label class="form-label">Piso</label>
-                            @Html.TextBoxFor(model => model.Piso, new { @class = "form-control" })
+                            @Html.TextBoxFor(model => model.Piso, new { @class = "form-control", maxlength = "4" })
                         </div>
-                        <div class="col-md-4 mb-3">
+                        <div class="col-md-2 mb-3">
                             <label class="form-label">Dpto</label>
-                            @Html.TextBoxFor(model => model.Dpto, new { @class = "form-control" })
+                            @Html.TextBoxFor(model => model.Dpto, new { @class = "form-control", maxlength = "4" })
                         </div>
-                        <div class="col-md-4 mb-3">
+                        <div class="col-md-2 mb-3">
                             <label class="form-label">Localidad</label>
                             @Html.TextBoxFor(model => model.Localidad, new { @class = "form-control" })
                             @Html.ValidationMessageFor(model => model.Localidad, "", new { @class = "text-danger" })
                         </div>
-                        <div class="col-md-4 mb-3">
+                    </div>
+
+                    <!-- Línea 3: Provincia, Uso, Tipo, Ambientes, Precio -->
+                    <div class="row">
+                        <div class="col-md-3 mb-3">
                             <label class="form-label">Provincia</label>
                             @Html.TextBoxFor(model => model.Provincia, new { @class = "form-control" })
                             @Html.ValidationMessageFor(model => model.Provincia, "", new { @class = "text-danger" })
                         </div>
-                        <div class="col-md-4 mb-3">
+                        <div class="col-md-3 mb-3">
                             <label class="form-label">Uso</label>
                             @Html.TextBoxFor(model => model.Uso, new { @class = "form-control" })
                             @Html.ValidationMessageFor(model => model.Uso, "", new { @class = "text-danger" })
                         </div>
-                        <div class="col-md-4 mb-3">
+                        <div class="col-md-2 mb-3">
                             <label class="form-label">Tipo</label>
                             @Html.TextBoxFor(model => model.Tipo, new { @class = "form-control" })
                             @Html.ValidationMessageFor(model => model.Tipo, "", new { @class = "text-danger" })
                         </div>
-                        <div class="col-md-4 mb-3">
+                        <div class="col-md-2 mb-3">
                             <label class="form-label">Ambientes</label>
-                            @Html.TextBoxFor(model => model.Ambientes, new { @class = "form-control" })
+                            @Html.TextBoxFor(model => model.Ambientes, new { @class = "form-control", maxlength = "4" })
                             @Html.ValidationMessageFor(model => model.Ambientes, "", new { @class = "text-danger" })
                         </div>
-                        <div class="col-md-4 mb-3">
+                        <div class="col-md-2 mb-3">
                             <label class="form-label">Precio</label>
                             @Html.TextBoxFor(model => model.Precio, new { @class = "form-control", type = "number", step = "any" })
                             @Html.ValidationMessageFor(model => model.Precio, "", new { @class = "text-danger" })
                         </div>
-                        <div class="col-md-4 mb-3">
-                            <label class="form-label">Latitud</label>
-                            @Html.TextBoxFor(model => model.Latitud, new { @class = "form-control" })
-                        </div>
-                        <div class="col-md-4 mb-3">
-                            <label class="form-label">Longitud</label>
-                            @Html.TextBoxFor(model => model.Longitud, new { @class = "form-control" })
-                        </div>
+                    </div>
 
-                        <div class="col-md-4 mb-3 form-check">
-                            @Html.CheckBoxFor(model => model.Pileta, new { @class = "form-check-input" })
+                    <!-- Línea 4: Latitud, Longitud, Pileta, Parrilla, Garage -->
+                    <div class="row">
+                        <div class="col-md-2 mb-3">
+                            <label class="form-label">Latitud</label>
+                            @Html.TextBoxFor(model => model.Latitud, new { @class = "form-control", maxlength = "4" })
+                        </div>
+                        <div class="col-md-2 mb-3">
+                            <label class="form-label">Longitud</label>
+                            @Html.TextBoxFor(model => model.Longitud, new { @class = "form-control", maxlength = "4" })
+                        </div>
+                        <div class="col-md-2 mb-3 form-check d-flex align-items-center">
+                            @Html.CheckBoxFor(model => model.Pileta, new { @class = "form-check-input me-2" })
                             @Html.LabelFor(model => model.Pileta, new { @class = "form-check-label" })
                         </div>
-                        <div class="col-md-4 mb-3 form-check">
-                            @Html.CheckBoxFor(model => model.Parrilla, new { @class = "form-check-input" })
+                        <div class="col-md-3 mb-3 form-check d-flex align-items-center">
+                            @Html.CheckBoxFor(model => model.Parrilla, new { @class = "form-check-input me-2" })
                             @Html.LabelFor(model => model.Parrilla, new { @class = "form-check-label" })
                         </div>
-                        <div class="col-md-4 mb-3 form-check">
-                            @Html.CheckBoxFor(model => model.Garage, new { @class = "form-check-input" })
+                        <div class="col-md-3 mb-3 form-check d-flex align-items-center">
+                            @Html.CheckBoxFor(model => model.Garage, new { @class = "form-check-input me-2" })
                             @Html.LabelFor(model => model.Garage, new { @class = "form-check-label" })
                         </div>
                     </div>
@@ -129,10 +187,12 @@
         </div>
     </div>
 
+
     <!-- Modal para buscar propietarios -->
     <div class="modal fade" id="modalBuscarPropietario" tabindex="-1" aria-labelledby="buscarPropietarioLabel" aria-hidden="true">
         <div class="modal-dialog modal-lg">
-            <div class="modal-content">
+            <div class="modal-content" style="font-size: 0.7rem !important;">
+
                 <div class="modal-header">
                     <h5 class="modal-title">Buscar Propietario</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
@@ -190,15 +250,15 @@
                                 data.forEach(p => {
                                     const row = document.createElement("tr");
                                     row.innerHTML = `
-                                     <td>${p.DniPropietario}</td>
-                                     <td>${p.ApellidoPropietario}</td>
-                                     <td>${p.NombrePropietario}</td>
-                                     <td>
-                                            <button class="btn btn-success" onclick="seleccionarPropietario('${p.DniPropietario}', '${p.NombrePropietario}', '${p.ApellidoPropietario}')">
-                                                Seleccionar
-                                            </button>
-                                    </td>
-                                `;
+                                         <td>${p.DniPropietario}</td>
+                                         <td>${p.ApellidoPropietario}</td>
+                                         <td>${p.NombrePropietario}</td>
+                                         <td>
+                                                <button class="btn btn-success" onclick="seleccionarPropietario('${p.DniPropietario}', '${p.NombrePropietario}', '${p.ApellidoPropietario}')">
+                                                    Seleccionar
+                                                </button>
+                                        </td>
+                                    `;
                                     lista.appendChild(row);
                                 });
                             })
