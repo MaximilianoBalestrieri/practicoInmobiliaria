@@ -93,5 +93,23 @@ namespace practicoInmobiliaria.Controllers
             ViewBag.Mensaje = "Inquilino eliminado exitosamente.";
             return RedirectToAction("Index");
         }
+
+
+        [HttpGet]
+        public JsonResult Buscar(string termino)
+        {
+            var db = new ConexionDB(); // ← Instanciar la clase
+            var inquilinos = db.BuscarInquilinos(termino)
+                .Select(p => new {
+                    Dni = p.DniInquilino,
+                    Nombre = p.NombreInquilino,
+                    Apellido = p.ApellidoInquilino
+                })
+                .ToList();
+
+            return Json(inquilinos, JsonRequestBehavior.AllowGet);
+        }
+
+
     }
 }

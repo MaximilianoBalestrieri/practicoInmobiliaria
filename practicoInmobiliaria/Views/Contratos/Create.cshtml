@@ -1,0 +1,390 @@
+﻿@model practicoInmobiliaria.Models.Contrato
+
+@{
+    ViewBag.Title = "Crear Contrato";
+}
+
+<h2>Crear Contrato</h2>
+
+@using (Html.BeginForm("Create", "Contratos", FormMethod.Post, new { @class = "form-horizontal", role = "form" }))
+{
+    @Html.AntiForgeryToken()
+
+    <div class="form-horizontal">
+        <hr />
+
+
+        <!-- Buscar y seleccionar PROPIETARIO -->
+        <div class="row align-items-end mb-3">
+            <div class="col-md-4">
+                <label class="form-label">DNI Propietario</label>
+                @Html.TextBoxFor(model => model.DniPropietario, new { @class = "form-control", id = "dniPropietarioInput", @readonly = "readonly" })
+
+
+            </div>
+            <div class="col-md-4">
+                <label class="form-label">Nombre Propietario</label>
+                @Html.TextBoxFor(model => model.NombrePropietario, new { @class = "form-control", id = "nombrePropietarioInput", @readonly = "readonly" })
+
+            </div>
+            <div class="col-md-4 d-flex align-items-end">
+                <button type="button" class="btn btn-primary w-100" data-bs-toggle="modal" data-bs-target="#modalBuscarPropietario">
+                    Buscar Propietario
+                </button>
+            </div>
+        </div>
+
+
+        <!-- Buscar y seleccionar INQUILINO -->
+        <div class="row align-items-end mb-3">
+            <div class="col-md-4">
+                <label class="form-label">DNI Inquilino</label>
+                @Html.TextBoxFor(model => model.DniInquilino, new { @class = "form-control", type = "number", id = "dniInquilinoInput" })
+            </div>
+            <div class="col-md-4">
+                <label class="form-label">Nombre Inquilino</label>
+                @Html.TextBoxFor(model => model.NombreInquilino, new { @class = "form-control", @readonly = "readonly" })
+            </div>
+            <div class="col-md-4 d-flex align-items-end">
+                <button type="button" class="btn btn-primary w-100" data-bs-toggle="modal" data-bs-target="#modalBuscarInquilino">
+                    Buscar Inquilino
+                </button>
+            </div>
+        </div>
+
+        <!-- DIRECCIONES -->
+        <div class="form-group">
+            @Html.HiddenFor(model => model.IdInmueble)
+
+            <div class="input-group mt-2">
+                <input type="text" id="direccion" name="direccion" class="form-control" readonly>
+                <button type="button" class="btn btn-primary" id="btnBuscarDireccion">Buscar Dirección</button>
+            </div>
+            
+        </div>
+ 
+
+        <div class="form-group">
+            @Html.LabelFor(model => model.FechaInicio, htmlAttributes: new { @class = "control-label col-md-2" })
+            <div class="col-md-10">
+                @Html.TextBoxFor(model => model.FechaInicio, "{0:yyyy-MM-dd}", new { @class = "form-control", type = "date" })
+                @Html.ValidationMessageFor(model => model.FechaInicio, "", new { @class = "text-danger" })
+            </div>
+        </div>
+
+        <div class="form-group">
+            @Html.LabelFor(model => model.FechaFinal, htmlAttributes: new { @class = "control-label col-md-2" })
+            <div class="col-md-10">
+                @Html.TextBoxFor(model => model.FechaFinal, "{0:yyyy-MM-dd}", new { @class = "form-control", type = "date" })
+                @Html.ValidationMessageFor(model => model.FechaFinal, "", new { @class = "text-danger" })
+            </div>
+        </div>
+
+        <div class="form-group">
+            @Html.LabelFor(model => model.Monto, htmlAttributes: new { @class = "control-label col-md-2" })
+            <div class="col-md-10">
+                @Html.TextBoxFor(model => model.Monto, new { @class = "form-control" })
+                @Html.ValidationMessageFor(model => model.Monto, "", new { @class = "text-danger" })
+            </div>
+        </div>
+
+        <div class="form-group">
+            @Html.LabelFor(model => model.Vigente, htmlAttributes: new { @class = "control-label col-md-2" })
+            <div class="col-md-10">
+                @Html.CheckBoxFor(model => model.Vigente)
+                @Html.ValidationMessageFor(model => model.Vigente, "", new { @class = "text-danger" })
+            </div>
+        </div>
+
+        <div class="form-group">
+            <div class="col-md-offset-2 col-md-10">
+                <input type="submit" value="Guardar" class="btn btn-primary" />
+                @Html.ActionLink("Cancelar", "Index", null, new { @class = "btn btn-secondary" })
+            </div>
+        </div>
+
+
+        <!-- Modal Buscar Propietario -->
+        <div class="modal fade" id="modalBuscarPropietario" tabindex="-1" aria-labelledby="buscarPropietarioLabel" aria-hidden="true">
+            <div class="modal-dialog modal-lg">
+                <div class="modal-content" style="font-size: 0.85rem;">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Buscar Propietario</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                    </div>
+                    <div class="modal-body">
+                        <input type="text" id="terminoBusqueda" class="form-control mb-3" placeholder="Buscar por DNI, nombre o apellido..." />
+                        <table class="table table-hover">
+                            <thead>
+                                <tr><th>DNI</th><th>Apellido</th><th>Nombre</th><th>Acción</th></tr>
+                            </thead>
+                            <tbody id="listaPropietarios"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Modal Buscar Inquilino -->
+        <div class="modal fade" id="modalBuscarInquilino" tabindex="-1" aria-labelledby="buscarInquilinoLabel" aria-hidden="true">
+            <div class="modal-dialog modal-lg">
+                <div class="modal-content" style="font-size: 0.85rem;">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Buscar Inquilino</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                    </div>
+                    <div class="modal-body">
+                        <input type="text" id="terminoBusquedaInquilino" class="form-control mb-3" placeholder="Buscar por DNI, nombre o apellido..." />
+                        <table class="table table-hover">
+                            <thead>
+                                <tr><th>DNI</th><th>Apellido</th><th>Nombre</th><th>Acción</th></tr>
+                            </thead>
+                            <tbody id="listaInquilinos"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Direcciones -->
+    <div class="modal fade" id="modalBuscarDireccion" tabindex="-1" aria-labelledby="modalBuscarDireccionLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Seleccionar Dirección del Inmueble</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                </div>
+                <div class="modal-body">
+                    <table class="table table-bordered table-striped">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Dirección</th>
+                                <th>Acción</th>
+                            </tr>
+                        </thead>
+                        <tbody id="listaDirecciones">
+                            <tr><td colspan="3" class="text-center text-muted">Buscando direcciones...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+
+    @section Scripts {
+        <script>
+            document.addEventListener("DOMContentLoaded", function () {
+
+                // ------------ DIRECCIONES ---------------------
+                const btnBuscarDireccion = document.getElementById("btnBuscarDireccion");
+
+                if (btnBuscarDireccion) {
+                    btnBuscarDireccion.addEventListener("click", function () {
+                        const dniInput = document.getElementById("dniPropietarioInput").value.trim();
+
+                        if (dniInput === "") {
+                            alert("El campo DNI Propietario no puede estar vacío.");
+                            return;
+                        }
+
+                        const modalDireccion = new bootstrap.Modal(document.getElementById("modalBuscarDireccion"));
+                        modalDireccion.show();
+
+                        const lista = document.getElementById("listaDirecciones");
+                        lista.innerHTML = `<tr><td colspan="3" class="text-center text-muted">Cargando...</td></tr>`;
+
+                        fetch(`/Inmuebles/ObtenerDireccionesPorDni?dni=${encodeURIComponent(dniInput)}`)
+                            .then(response => {
+                                if (!response.ok) throw new Error("Error al obtener direcciones");
+                                return response.json();
+                            })
+                            .then(data => {
+                                lista.innerHTML = "";
+
+                                if (data.length === 0) {
+                                    lista.innerHTML = `<tr><td colspan="3" class="text-center text-muted">No se encontraron direcciones.</td></tr>`;
+                                    return;
+                                }
+
+                                data.forEach(d => {
+                                    const row = document.createElement("tr");
+                                    const direccionEscapada = d.direccion.replace(/'/g, "\\'");
+                                    row.innerHTML = `
+                        <td>${d.id}</td>
+                        <td>${d.direccion}</td>
+                        <td>
+                            <button class="btn btn-success" onclick="seleccionarDireccion(${d.id}, '${direccionEscapada}')">
+                                Seleccionar
+                            </button>
+                        </td>
+                    `;
+                                    lista.appendChild(row);
+                                });
+                            })
+                            .catch(err => {
+                                console.error("Error al obtener las direcciones:", err);
+                                lista.innerHTML = `<tr><td colspan="3" class="text-center text-danger">Error al obtener datos.</td></tr>`;
+                            });
+                    });
+                }
+
+                // Función global para cuando el usuario hace clic en "Seleccionar"
+                function seleccionarDireccion(id, direccionTexto) {
+                    // Mostrar la dirección en el input
+                    document.getElementById("direccion").value = direccionTexto;
+
+                    // Guardar el ID en un input oculto
+                    document.getElementById("IdInmueble").value = id;
+
+                    // Cerrar el modal
+                    const modal = bootstrap.Modal.getInstance(document.getElementById("modalBuscarDireccion"));
+                    modal.hide();
+                }
+
+
+                window.seleccionarDireccion = function (id, direccion) {
+                    document.getElementById("IdInmueble").value = id; // Rellena el input del IdInmueble
+                    document.getElementById("direccion").value = direccion; // (si tenés un campo visual de dirección)
+                    bootstrap.Modal.getInstance(document.getElementById("modalBuscarDireccion")).hide();
+                };
+
+
+
+
+
+                // ---------------- PROPIETARIO ----------------
+                const inputBusqueda = document.getElementById("terminoBusqueda");
+                let timeout;
+
+                const modal = document.getElementById('modalBuscarPropietario');
+                modal.addEventListener('shown.bs.modal', function () {
+                    inputBusqueda.focus();
+                });
+
+                if (inputBusqueda) {
+                    inputBusqueda.addEventListener("input", function () {
+                        clearTimeout(timeout);
+                        timeout = setTimeout(() => {
+                            const termino = inputBusqueda.value;
+
+                            fetch('/Propietarios/Buscar?termino=' + encodeURIComponent(termino))
+                                .then(response => {
+                                    if (!response.ok) throw new Error("Error en la respuesta");
+                                    return response.json();
+                                })
+                                .then(data => {
+                                    const lista = document.getElementById("listaPropietarios");
+                                    lista.innerHTML = "";
+
+                                    if (data.length === 0) {
+                                        lista.innerHTML = `<tr><td colspan="4" class="text-center text-muted">No se encontraron resultados.</td></tr>`;
+                                        return;
+                                    }
+
+                                    data.forEach(p => {
+                                        const row = document.createElement("tr");
+                                        row.innerHTML = `
+                                                                                <td>${p.DniPropietario}</td>
+                                                                                <td>${p.ApellidoPropietario}</td>
+                                                                                <td>${p.NombrePropietario}</td>
+                                                                                <td>
+                                                                                    <button class="btn btn-success" onclick="seleccionarPropietario('${p.DniPropietario}', '${p.NombrePropietario}', '${p.ApellidoPropietario}')">
+                                                                                        Seleccionar
+                                                                                    </button>
+                                                                                </td>
+                                                                            `;
+                                        lista.appendChild(row);
+                                    });
+                                })
+                                .catch(error => {
+                                    console.error("Error en la búsqueda:", error);
+                                });
+                        }, 300);
+                    });
+                }
+
+                window.seleccionarPropietario = function (dni, nombre, apellido) {
+                    document.getElementById("dniPropietarioInput").value = dni;
+                    document.getElementById("nombrePropietarioInput").value = `${nombre} ${apellido}`;
+                    document.getElementById("nombrePropietarioSeleccionado").innerText = `Seleccionado: ${nombre} ${apellido}`;
+                    bootstrap.Modal.getInstance(document.getElementById('modalBuscarPropietario')).hide();
+                }
+
+                // ---------------- INQUILINO ----------------
+                const inputBusquedaInq = document.getElementById("terminoBusquedaInquilino");
+                let timeoutInq;
+
+                const modalInq = document.getElementById('modalBuscarInquilino');
+                modalInq.addEventListener('shown.bs.modal', function () {
+                    inputBusquedaInq.focus();
+                });
+
+                if (inputBusquedaInq) {
+                    inputBusquedaInq.addEventListener("input", function () {
+                        clearTimeout(timeoutInq);
+                        timeoutInq = setTimeout(() => {
+                            const termino = inputBusquedaInq.value;
+
+                            fetch('/Inquilinos/Buscar?termino=' + encodeURIComponent(termino))
+                                .then(response => {
+                                    if (!response.ok) throw new Error("Error en la respuesta");
+                                    return response.json();
+                                })
+                                .then(data => {
+                                    const lista = document.getElementById("listaInquilinos");
+                                    lista.innerHTML = "";
+
+                                    if (data.length === 0) {
+                                        lista.innerHTML = `<tr><td colspan="4" class="text-center text-muted">No se encontraron resultados.</td></tr>`;
+                                        return;
+                                    }
+
+                                    data.forEach(p => {
+                                        const row = document.createElement("tr");
+                                        row.innerHTML = `
+                                        <td>${p.Dni}</td>
+                                        <td>${p.Apellido}</td>
+                                        <td>${p.Nombre}</td>
+                                        <td>
+                                            <button class="btn btn-success" onclick="seleccionarInquilino('${p.Dni}', '${p.Nombre}', '${p.Apellido}')">
+                                                Seleccionar
+                                            </button>
+                                        </td>
+                                    `;
+                                        lista.appendChild(row);
+                                    });
+
+                                })
+                                .catch(error => {
+                                    console.error("Error en la búsqueda:", error);
+                                });
+                        }, 300);
+                    });
+                }
+
+                window.seleccionarInquilino = function (dni, nombre, apellido) {
+                    document.getElementById("dniInquilinoInput").value = dni;
+                    // Buscamos el input del nombre inquilino (el segundo campo, que es readonly)
+                    const nombreInquilinoInput = document.querySelector('input[readonly][name="NombreInquilino"]');
+                    if (nombreInquilinoInput) {
+                        nombreInquilinoInput.value = `${nombre} ${apellido}`;
+                    }
+                    bootstrap.Modal.getInstance(document.getElementById('modalBuscarInquilino')).hide();
+                }
+
+                window.seleccionarPropietario = seleccionarPropietario;
+            });
+
+
+
+
+
+        </script>
+
+
+    }
+}

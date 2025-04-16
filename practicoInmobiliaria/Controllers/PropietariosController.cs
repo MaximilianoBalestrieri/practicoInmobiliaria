@@ -128,14 +128,17 @@ namespace practicoInmobiliaria.Controllers
             }
         }
 
-
+       
         [HttpGet]
         public JsonResult Buscar(string termino)
         {
-            var propietarios = conexionDB.BuscarPropietarios(termino);
+            var propietarios = conexionDB.BuscarPropietarios(termino)
+                .Where(p => p.DniPropietario.Contains(termino) || p.NombrePropietario.Contains(termino) || p.ApellidoPropietario.Contains(termino))
+                .Select(p => new { p.DniPropietario, p.NombrePropietario, p.ApellidoPropietario })
+                .ToList();
+
             return Json(propietarios, JsonRequestBehavior.AllowGet);
         }
-
 
 
 

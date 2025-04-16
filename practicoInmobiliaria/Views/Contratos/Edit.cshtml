@@ -1,0 +1,42 @@
+﻿@model practicoInmobiliaria.Models.Contrato
+
+@{
+    ViewData["Title"] = "Editar Contrato";
+}
+
+<h2>Editar Contrato</h2>
+
+<form asp-action="Edit">
+    <input type="hidden" asp-for="IdContrato" />
+    <div class="form-group">
+        <label>DNI Propietario</label>
+        <input asp-for="DniPropietario" class="form-control" />
+    </div>
+    <div class="form-group">
+        <label>DNI Inquilino</label>
+        <input asp-for="DniInquilino" class="form-control" />
+    </div>
+    <div class="form-group">
+        <label>ID Inmueble</label>
+        <input asp-for="IdInmueble" class="form-control" />
+    </div>
+    <div class="form-group">
+        <label>Fecha Inicio</label>
+        <input asp-for="FechaInicio" type="date" class="form-control" />
+    </div>
+    <div class="form-group">
+        <label>Fecha Final</label>
+        <input asp-for="FechaFinal" type="date" class="form-control" />
+    </div>
+    <div class="form-group">
+        <label>Monto</label>
+        <input asp-for="Monto" type="number" step="0.01" class="form-control" />
+    </div>
+    <div class="form-check">
+        <input asp-for="Vigente" class="form-check-input" />
+        <label class="form-check-label">Vigente</label>
+    </div>
+    <button type="submit" class="btn btn-success mt-3">Guardar cambios</button>
+    <a asp-action="Index" class="btn btn-secondary mt-3">Cancelar</a>
+</form>
+

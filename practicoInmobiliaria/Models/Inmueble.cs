@@ -1,4 +1,7 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using Microsoft.AspNetCore.Http;
+using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+
 namespace practicoInmobiliaria.Models
 {
     public class Inmueble
@@ -32,11 +35,37 @@ namespace practicoInmobiliaria.Models
         public int Ambientes { get; set; }
         public bool Pileta { get; set; }
         public bool Parrilla { get; set; }
-        public bool Garage { get; set; }   
-        public double Latitud { get; set; }      
+        public bool Garage { get; set; }
+        public double Latitud { get; set; }
         public double Longitud { get; set; }
 
         [Required(ErrorMessage = "El precio es obligatorio")]
         public double Precio { get; set; }
+
+        public string ImagenPortada { get; set; }
+
+        // Si querés mantener estas listas:
+        public List<string> FotosCarruselLista { get; set; }
+        public List<string> ImagenesCarrusel { get; set; }
+
+        // Si querés guardar una cadena de rutas para insertarlas luego
+        public string FotosCarrusel { get; set; } // <-- AGREGAR ESTO si lo vas a usar como string con ;
     }
+
+   
+
+    public class InmuebleFotoCarrusel
+    {
+        public int Id { get; set; }
+        public int IdInmueble { get; set; }
+        public string RutaFoto { get; set; }
+    }
+
+    public class ImagenCarrusel
+    {
+        public int Id { get; set; }
+        public string RutaFoto { get; set; }
+    }
+
+   
 }

@@ -1,9 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Diagnostics.Contracts;
 using System.Linq;
 using System.Web;
 using MySql.Data.MySqlClient;
+using practicoInmobiliaria.Models;
 
 
 namespace practicoInmobiliaria.Models
@@ -27,7 +29,7 @@ namespace practicoInmobiliaria.Models
             conexion = new MySqlConnection(_connectionString);
         }
 
-      
+
 
         // Método para obtener todos los propietarios desde la base de datos
         public List<Propietario> ObtenerPropietarios()
@@ -67,6 +69,8 @@ namespace practicoInmobiliaria.Models
 
             return propietarios;
         }
+
+
 
         // Método para obtener todos los inquilinos desde la base de datos
         public List<Inquilino> ObtenerInquilinos()
@@ -266,60 +270,110 @@ namespace practicoInmobiliaria.Models
                 cmd.ExecuteNonQuery();
             }
         }
-       // private string connectionString = "server=localhost;database=inmobiliaria;uid=root;pwd=;";
+        // private string connectionString = "server=localhost;database=inmobiliaria;uid=root;pwd=;";
 
         // Obtener todos los inmuebles
         public List<Inmueble> ObtenerInmuebles()
         {
             List<Inmueble> inmuebles = new List<Inmueble>();
 
-            try
-            {
-                conexion.Open();
-                string query = "SELECT * FROM inmueble";
-                MySqlCommand cmd = new MySqlCommand(query, conexion);
-                MySqlDataReader reader = cmd.ExecuteReader();
+            conexion.Open();
+            string query = "SELECT * FROM inmueble";
+            MySqlCommand cmd = new MySqlCommand(query, conexion);
+            MySqlDataReader reader = cmd.ExecuteReader();
 
-                while (reader.Read())
+            while (reader.Read())
+            {
+                Inmueble inmueble = new Inmueble
                 {
-                    Inmueble inmueble = new Inmueble
-                    {
-                        IdInmueble = reader.GetInt32("idInmueble"),
-                        DniPropietario = reader.GetString("dniPropietario"),
-                        Calle = reader.GetString("calle"),
-                        Nro = reader.GetInt32("nro"),
-                        Piso = reader.GetInt32("piso"),
-                        Dpto = reader.GetString("dpto"),
-                        Localidad = reader.GetString("localidad"),
-                        Provincia = reader.GetString("provincia"),
-                        Uso = reader.GetString("uso"),
-                        Tipo = reader.GetString("tipo"),
-                        Ambientes = reader.GetInt32("ambientes"),
-                        Pileta = reader.GetBoolean("pileta"),
-                        Parrilla = reader.GetBoolean("parrilla"),
-                        Garage = reader.GetBoolean("garage"),
-                        Latitud = reader.GetDouble("latitud"),
-                        Longitud = reader.GetDouble("longitud"),
-                        Precio = reader.GetDouble("precio")
-                    };
-                    inmuebles.Add(inmueble);
-                }
+                    IdInmueble = reader.GetInt32("idInmueble"),
+                    DniPropietario = reader.GetString("dniPropietario"),
+                    Calle = reader.GetString("calle"),
+                    Nro = reader.GetInt32("nro"),
+                    Piso = reader.IsDBNull(reader.GetOrdinal("piso")) ? 0 : reader.GetInt32("piso"),
+                    Dpto = reader.IsDBNull(reader.GetOrdinal("dpto")) ? null : reader.GetString("dpto"),
+                    Localidad = reader.GetString("localidad"),
+                    Provincia = reader.GetString("provincia"),
+                    Uso = reader.GetString("uso"),
+                    Tipo = reader.GetString("tipo"),
+                    Ambientes = reader.GetInt32("ambientes"),
+                    Pileta = reader["pileta"].ToString() == "1",
+                    Parrilla = reader["parrilla"].ToString() == "1",
+                    Garage = reader["garage"].ToString() == "1",
+                    Latitud = Convert.ToDouble(reader["latitud"]),
+                    Longitud = Convert.ToDouble(reader["longitud"]),
+                    Precio = Convert.ToDouble(reader["precio"]),
+                    ImagenPortada = reader["ImagenPortada"] != DBNull.Value ? reader["ImagenPortada"].ToString() : null,
+                    FotosCarruselLista = new List<string>()
+                };
 
-                reader.Close();
+                inmuebles.Add(inmueble);
             }
-            catch (Exception ex)
-            {
-                Debug.WriteLine("Error al obtener los inmuebles: " + ex.Message);
-            }
-            finally
-            {
-                conexion.Close();
-            }
+
+            reader.Close();
+            conexion.Close();
 
             return inmuebles;
         }
 
-        // Obtener inmueble por ID
+        public List<InmuebleFotoCarrusel> ObtenerFotosCarruselPorInmueble(int id)
+        {
+            var fotosCarrusel = new List<InmuebleFotoCarrusel>();
+
+            using (var conexion = new MySqlConnection(_connectionString))
+            {
+                string query = "SELECT * FROM InmuebleFotoCarrusel WHERE IdInmueble = @id";
+                MySqlCommand cmd = new MySqlCommand(query, conexion);
+                cmd.Parameters.AddWithValue("@id", id);
+
+                conexion.Open();
+                using (var reader = cmd.ExecuteReader())
+                {
+                    while (reader.Read())
+                    {
+                        fotosCarrusel.Add(new InmuebleFotoCarrusel
+                        {
+                            Id = reader.GetInt32("Id"),
+                            IdInmueble = reader.GetInt32("IdInmueble"),
+                            RutaFoto = reader.GetString("RutaFoto")
+                        });
+                    }
+                }
+            }
+
+            return fotosCarrusel;
+        }
+
+
+
+
+        public void InsertarFotoCarrusel(int idInmueble, string rutaFoto)
+        {
+            using (MySqlConnection conexion = new MySqlConnection(_connectionString))
+            {
+                string query = "INSERT INTO InmuebleFotoCarrusel (IdInmueble, RutaFoto) VALUES (@idInmueble, @ruta)";
+                MySqlCommand cmd = new MySqlCommand(query, conexion);
+                cmd.Parameters.AddWithValue("@idInmueble", idInmueble);
+                cmd.Parameters.AddWithValue("@ruta", rutaFoto);
+
+                conexion.Open();
+                cmd.ExecuteNonQuery();
+            }
+        }
+
+
+
+        public void AgregarFotoCarrusel(int idInmueble, string rutaFoto)
+        {
+            using (var conn = ObtenerConexion())
+            {
+                var cmd = new MySqlCommand("INSERT INTO InmuebleFotoCarrusel (IdInmueble, RutaFoto) VALUES (@id, @ruta)", conn);
+                cmd.Parameters.AddWithValue("@id", idInmueble);
+                cmd.Parameters.AddWithValue("@ruta", rutaFoto);
+                cmd.ExecuteNonQuery();
+            }
+        }
+
         public Inmueble ObtenerInmueblePorId(int id)
         {
             Inmueble inmueble = null;
@@ -328,35 +382,56 @@ namespace practicoInmobiliaria.Models
             {
                 using (MySqlConnection conexion = new MySqlConnection(_connectionString))
                 {
+                    conexion.Open();
+
+                    // 1. Obtener datos del inmueble
                     string query = "SELECT * FROM inmueble WHERE idInmueble = @id";
                     MySqlCommand cmd = new MySqlCommand(query, conexion);
                     cmd.Parameters.AddWithValue("@id", id);
 
-                    conexion.Open();
-                    MySqlDataReader reader = cmd.ExecuteReader();
-
-                    if (reader.Read())
+                    using (MySqlDataReader reader = cmd.ExecuteReader())
                     {
-                        inmueble = new Inmueble
+                        if (reader.Read())
                         {
-                            IdInmueble = reader.GetInt32("idInmueble"),
-                            DniPropietario = reader.GetString("dniPropietario"),
-                            Calle = reader.GetString("calle"),
-                            Nro = reader.GetInt32("nro"),
-                            Piso = reader.GetInt32("piso"),
-                            Dpto = reader.GetString("dpto"),
-                            Localidad = reader.GetString("localidad"),
-                            Provincia = reader.GetString("provincia"),
-                            Uso = reader.GetString("uso"),
-                            Tipo = reader.GetString("tipo"),
-                            Ambientes = reader.GetInt32("ambientes"),
-                            Pileta = reader.GetBoolean("pileta"),
-                            Parrilla = reader.GetBoolean("parrilla"),
-                            Garage = reader.GetBoolean("garage"),
-                            Latitud = reader.GetDouble("latitud"),
-                            Longitud = reader.GetDouble("longitud"),
-                            Precio = reader.GetDouble("precio")
-                        };
+                            inmueble = new Inmueble
+                            {
+                                IdInmueble = reader.GetInt32("idInmueble"),
+                                DniPropietario = reader.GetString("dniPropietario"),
+                                Calle = reader.GetString("calle"),
+                                Nro = reader.GetInt32("nro"),
+                                Piso = reader.IsDBNull(reader.GetOrdinal("piso")) ? 0 : reader.GetInt32("piso"),
+                                Dpto = reader["dpto"] != DBNull.Value ? reader["dpto"].ToString() : "",
+                                Localidad = reader.GetString("localidad"),
+                                Provincia = reader.GetString("provincia"),
+                                Uso = reader.GetString("uso"),
+                                Tipo = reader.GetString("tipo"),
+                                Ambientes = reader.GetInt32("ambientes"),
+                                Pileta = reader["pileta"].ToString() == "1",
+                                Parrilla = reader["parrilla"].ToString() == "1",
+                                Garage = reader["garage"].ToString() == "1",
+                                Latitud = Convert.ToDouble(reader["latitud"]),
+                                Longitud = Convert.ToDouble(reader["longitud"]),
+                                Precio = Convert.ToDouble(reader["precio"]),
+                                ImagenPortada = reader["ImagenPortada"] != DBNull.Value ? reader["ImagenPortada"].ToString() : null,
+                                FotosCarruselLista = new List<string>()
+                            };
+                        }
+                    }
+
+                    // 2. Obtener fotos del carrusel (misma conexión, aún abierta)
+                    if (inmueble != null)
+                    {
+                        string fotosQuery = "SELECT RutaFoto FROM InmuebleFotoCarrusel WHERE IdInmueble = @id";
+                        MySqlCommand cmdFotos = new MySqlCommand(fotosQuery, conexion);
+                        cmdFotos.Parameters.AddWithValue("@id", id);
+
+                        using (var readerFotos = cmdFotos.ExecuteReader())
+                        {
+                            while (readerFotos.Read())
+                            {
+                                inmueble.FotosCarruselLista.Add(readerFotos["RutaFoto"].ToString());
+                            }
+                        }
                     }
                 }
             }
@@ -368,46 +443,164 @@ namespace practicoInmobiliaria.Models
             return inmueble;
         }
 
+        public List<practicoInmobiliaria.Models.FotoCarrusel> ObtenerFotosCarrusel(int idInmueble)
+        {
+            var lista = new List<practicoInmobiliaria.Models.FotoCarrusel>();
 
-        // Agregar nuevo inmueble
-        // Agregar nuevo inmueble
-        public void AgregarInmueble(Inmueble inmueble)
+            using (var conexion = ObtenerConexion())
+            {
+                conexion.Open();
+                var cmd = new MySqlCommand("SELECT Id, RutaFoto FROM InmuebleFotoCarrusel WHERE IdInmueble = @id", conexion);
+                cmd.Parameters.AddWithValue("@id", idInmueble);
+                var reader = cmd.ExecuteReader();
+                while (reader.Read())
+                {
+                    lista.Add(new practicoInmobiliaria.Models.FotoCarrusel
+                    {
+                        Id = Convert.ToInt32(reader["Id"]),
+                        RutaFoto = reader["RutaFoto"].ToString()
+                    });
+                }
+            }
+
+            return lista;
+        }
+
+
+        public string ObtenerRutaFotoCarrusel(int idFoto)
+        {
+            string ruta = "";
+            using (var conn = ObtenerConexion())
+            {
+                conn.Open();
+                var cmd = new MySqlCommand("SELECT RutaFoto FROM InmuebleFotoCarrusel WHERE Id = @id", conn);
+                cmd.Parameters.AddWithValue("@id", idFoto);
+                var reader = cmd.ExecuteReader();
+                if (reader.Read())
+                {
+                    ruta = reader["RutaFoto"].ToString();
+                }
+            }
+            return ruta;
+        }
+
+
+        public void EliminarFotoCarrusel(int id)
         {
             using (MySqlConnection conexion = new MySqlConnection(_connectionString))
             {
-                string query = @"INSERT INTO inmueble 
-        (dniPropietario, calle, nro, piso, dpto, localidad, provincia, uso, tipo, ambientes, pileta, parrilla, garage, latitud, longitud, precio) 
-        VALUES 
-        (@dni, @calle, @nro, @piso, @dpto, @localidad, @provincia, @uso, @tipo, @ambientes, @pileta, @parrilla, @garage, @latitud, @longitud, @precio)";
-
+                string query = "DELETE FROM InmuebleFotoCarrusel WHERE Id = @id";
                 MySqlCommand cmd = new MySqlCommand(query, conexion);
-
-                cmd.Parameters.AddWithValue("@dni", inmueble.DniPropietario);
-                cmd.Parameters.AddWithValue("@calle", inmueble.Calle);
-                cmd.Parameters.AddWithValue("@nro", inmueble.Nro);
-                cmd.Parameters.AddWithValue("@piso", inmueble.Piso);
-                cmd.Parameters.AddWithValue("@dpto", inmueble.Dpto);
-                cmd.Parameters.AddWithValue("@localidad", inmueble.Localidad);
-                cmd.Parameters.AddWithValue("@provincia", inmueble.Provincia);
-                cmd.Parameters.AddWithValue("@uso", inmueble.Uso);
-                cmd.Parameters.AddWithValue("@tipo", inmueble.Tipo);
-                cmd.Parameters.AddWithValue("@ambientes", inmueble.Ambientes);
-                cmd.Parameters.AddWithValue("@pileta", inmueble.Pileta);
-                cmd.Parameters.AddWithValue("@parrilla", inmueble.Parrilla);
-                cmd.Parameters.AddWithValue("@garage", inmueble.Garage);
-                cmd.Parameters.AddWithValue("@latitud", inmueble.Latitud);
-                cmd.Parameters.AddWithValue("@longitud", inmueble.Longitud);
-                cmd.Parameters.AddWithValue("@precio", inmueble.Precio);
-
+                cmd.Parameters.AddWithValue("@id", id);
                 conexion.Open();
                 cmd.ExecuteNonQuery();
             }
         }
 
 
+
+        public InmuebleFotoCarrusel ObtenerFotoCarruselPorId(int id)
+        {
+            InmuebleFotoCarrusel foto = null;
+            using (MySqlConnection conexion = new MySqlConnection(_connectionString))
+            {
+                string query = "SELECT * FROM InmuebleFotoCarrusel WHERE Id = @id";
+                MySqlCommand cmd = new MySqlCommand(query, conexion);
+                cmd.Parameters.AddWithValue("@id", id);
+                conexion.Open();
+                Console.WriteLine("Foto encontrada: " + foto?.RutaFoto);
+
+                using (var reader = cmd.ExecuteReader())
+                {
+                    if (reader.Read())
+                    {
+                        foto = new InmuebleFotoCarrusel
+                        {
+                            Id = reader.GetInt32("Id"),
+                            IdInmueble = reader.GetInt32("IdInmueble"),
+                            RutaFoto = reader.GetString("RutaFoto")
+                        };
+                    }
+                }
+            }
+            return foto;
+        }
+
+
+
+
+
+        public class InmuebleViewModel
+        {
+            // Otros campos del inmueble...
+            public List<InmuebleFotoCarrusel> ImagenesCarrusel { get; set; }
+        }
+
+
+        // Agregar nuevo inmueble
+        public int AgregarInmueble(Inmueble inmueble)
+        {
+            int idInmueble = 0;
+
+            using (var conn = ObtenerConexion())
+            {
+                conn.Open();
+                var cmd = new MySqlCommand(@"
+            INSERT INTO Inmueble 
+                (DniPropietario, Calle, Nro, Piso, Dpto, Localidad, Provincia, Uso, Tipo, Ambientes, Precio, Latitud, Longitud, Pileta, Parrilla, Garage, ImagenPortada)
+            VALUES 
+                (@DniPropietario, @Calle, @Nro, @Piso, @Dpto, @Localidad, @Provincia, @Uso, @Tipo, @Ambientes, @Precio, @Latitud, @Longitud, @Pileta, @Parrilla, @Garage, @ImagenPortada);
+            SELECT LAST_INSERT_ID();", conn);
+
+                cmd.Parameters.AddWithValue("@DniPropietario", inmueble.DniPropietario);
+                cmd.Parameters.AddWithValue("@Calle", inmueble.Calle);
+                cmd.Parameters.AddWithValue("@Nro", inmueble.Nro);
+                cmd.Parameters.AddWithValue("@Piso", inmueble.Piso);
+                cmd.Parameters.AddWithValue("@Dpto", inmueble.Dpto);
+                cmd.Parameters.AddWithValue("@Localidad", inmueble.Localidad);
+                cmd.Parameters.AddWithValue("@Provincia", inmueble.Provincia);
+                cmd.Parameters.AddWithValue("@Uso", inmueble.Uso);
+                cmd.Parameters.AddWithValue("@Tipo", inmueble.Tipo);
+                cmd.Parameters.AddWithValue("@Ambientes", inmueble.Ambientes);
+                cmd.Parameters.AddWithValue("@Precio", inmueble.Precio);
+                cmd.Parameters.AddWithValue("@Latitud", inmueble.Latitud);
+                cmd.Parameters.AddWithValue("@Longitud", inmueble.Longitud);
+                cmd.Parameters.AddWithValue("@Pileta", inmueble.Pileta);
+                cmd.Parameters.AddWithValue("@Parrilla", inmueble.Parrilla);
+                cmd.Parameters.AddWithValue("@Garage", inmueble.Garage);
+                cmd.Parameters.AddWithValue("@ImagenPortada", inmueble.ImagenPortada);
+
+                idInmueble = Convert.ToInt32(cmd.ExecuteScalar());
+
+                // Guardar fotos del carrusel si hay
+                if (!string.IsNullOrEmpty(inmueble.FotosCarrusel))
+                {
+                    var rutas = inmueble.FotosCarrusel.Split(';');
+
+                    foreach (var ruta in rutas)
+                    {
+                        if (!string.IsNullOrWhiteSpace(ruta))
+                        {
+                            var cmdCarrusel = new MySqlCommand(
+                                "INSERT INTO InmuebleFotoCarrusel (IdInmueble, RutaFoto) VALUES (@IdInmueble, @RutaFoto)", conn);
+                            cmdCarrusel.Parameters.AddWithValue("@IdInmueble", idInmueble);
+                            cmdCarrusel.Parameters.AddWithValue("@RutaFoto", ruta);
+                            cmdCarrusel.ExecuteNonQuery();
+                        }
+                    }
+                }
+            }
+
+            return idInmueble;
+        }
+
+
+
+
         // Actualizar inmueble existente
         public void ActualizarInmueble(Inmueble inmueble)
         {
+            System.Diagnostics.Debug.WriteLine("📌 Entrando a ActualizarInmueble: " + inmueble.IdInmueble);
             using (MySqlConnection conexion = new MySqlConnection(_connectionString))
             {
                 string query = @"UPDATE inmueble SET 
@@ -426,7 +619,8 @@ namespace practicoInmobiliaria.Models
             garage = @garage,
             latitud = @latitud,
             longitud = @longitud,
-            precio = @precio
+            precio = @precio,
+            ImagenPortada=@ImagenPortada
         WHERE idInmueble = @id";
 
                 MySqlCommand cmd = new MySqlCommand(query, conexion);
@@ -448,8 +642,10 @@ namespace practicoInmobiliaria.Models
                 cmd.Parameters.AddWithValue("@latitud", inmueble.Latitud);
                 cmd.Parameters.AddWithValue("@longitud", inmueble.Longitud);
                 cmd.Parameters.AddWithValue("@precio", inmueble.Precio);
-
+                cmd.Parameters.AddWithValue("@ImagenPortada", inmueble.ImagenPortada);
                 conexion.Open();
+                System.Diagnostics.Debug.WriteLine("Actualizando inmueble con ruta: " + inmueble.ImagenPortada);
+
                 cmd.ExecuteNonQuery();
             }
         }
@@ -466,7 +662,6 @@ namespace practicoInmobiliaria.Models
                 cmd.ExecuteNonQuery();
             }
         }
-
 
 
         public Propietario ObtenerPropietarioPorDni(int dni)
@@ -503,6 +698,7 @@ namespace practicoInmobiliaria.Models
         {
             return new MySqlConnection(_connectionString);
         }
+
         public List<Propietario> BuscarPropietariosPorNombreODni(string filtro)
         {
             List<Propietario> lista = new List<Propietario>();
@@ -597,5 +793,219 @@ namespace practicoInmobiliaria.Models
         }
 
 
+
+
+
+
+
+        public void AgregarFotosCarrusel(int idInmueble, List<string> rutas)
+        {
+            using (var connection = new MySqlConnection(_connectionString))
+            {
+                connection.Open();
+                foreach (var ruta in rutas)
+                {
+                    var command = new MySqlCommand("INSERT INTO InmuebleFotoCarrusel (IdInmueble, RutaFoto) VALUES (@id, @ruta)", connection);
+                    command.Parameters.AddWithValue("@id", idInmueble);
+                    command.Parameters.AddWithValue("@ruta", ruta);
+                    command.ExecuteNonQuery();
+                }
+            }
+        }
+
+
+        public List<Contrato> ObtenerTodosLosContratos()
+        {
+            var contratos = new List<Contrato>();
+
+            using (var conexion = new MySqlConnection(_connectionString))
+            {
+                conexion.Open();
+                var query = "SELECT * FROM Contrato"; // Asegúrate de que la tabla se llama Contratos en tu base de datos
+                var comando = new MySqlCommand(query, conexion);
+                var reader = comando.ExecuteReader();
+
+                while (reader.Read())
+                {
+                    contratos.Add(new Contrato
+                    {
+                        IdContrato = reader.GetInt32("idContrato"),
+                        NombrePropietario = reader.GetString("nombrePropietario"),
+                        NombreInquilino = reader.GetString("nombreInquilino"),
+                        Direccion = reader.GetString("direccion"),
+                        FechaInicio = reader.GetDateTime("fechaInicio"),
+                        FechaFinal = reader.GetDateTime("fechaFinal"),
+                        Monto = reader.GetDecimal("monto"),
+                        Vigente = reader.GetBoolean("vigente")
+                    });
+                }
+            }
+
+            return contratos;
+        }
+
+        public Contrato ObtenerContratoPorId(int id)
+        {
+            Contrato contrato = null;
+
+            using (var conexion = new MySqlConnection(_connectionString))
+            {
+                conexion.Open();
+                var query = "SELECT * FROM Contrato WHERE idContrato = @id";
+                var comando = new MySqlCommand(query, conexion);
+                comando.Parameters.AddWithValue("@id", id);
+                var reader = comando.ExecuteReader();
+
+                if (reader.Read())
+                {
+                    contrato = new Contrato
+                    {
+                        IdContrato = reader.GetInt32("idContrato"),
+                        NombrePropietario = reader.GetString("nombrePropietario"),
+                        NombreInquilino = reader.GetString("nombreInquilino"),
+                        Direccion = reader.GetString("direccion"),
+                        FechaInicio = reader.GetDateTime("fechaInicio"),
+                        FechaFinal = reader.GetDateTime("fechaFinal"),
+                        Monto = reader.GetDecimal("monto"),
+                        Vigente = reader.GetBoolean("vigente")
+                    };
+                }
+            }
+
+            return contrato;
+        }
+
+        // Método para agregar un nuevo contrato
+        public bool AgregarContrato(Contrato contrato)
+        {
+            using (var conexion = new MySqlConnection(_connectionString))
+            {
+                conexion.Open();
+                var query = "INSERT INTO Contrato (nombrePropietario, nombreInquilino, direccion, fechaInicio, fechaFinal, monto, vigente) " +
+                            "VALUES (@nombrePropietario, @nombreInquilino, @direccion, @fechaInicio, @fechaFinal, @monto, @vigente)";
+                var comando = new MySqlCommand(query, conexion);
+                comando.Parameters.AddWithValue("@nombrePropietario", contrato.NombrePropietario);
+                comando.Parameters.AddWithValue("@nombreInquilino", contrato.NombreInquilino);
+                comando.Parameters.AddWithValue("@direccion", contrato.Direccion);
+                comando.Parameters.AddWithValue("@fechaInicio", contrato.FechaInicio);
+                comando.Parameters.AddWithValue("@fechaFinal", contrato.FechaFinal);
+                comando.Parameters.AddWithValue("@monto", contrato.Monto);
+                comando.Parameters.AddWithValue("@vigente", contrato.Vigente);
+
+                var filasAfectadas = comando.ExecuteNonQuery();
+                return filasAfectadas > 0;
+            }
+        }
+
+        // Método para actualizar un contrato existente
+        public bool ActualizarContrato(Contrato contrato)
+        {
+            using (var conexion = new MySqlConnection(_connectionString))
+            {
+                conexion.Open();
+                var query = "UPDATE Contrato SET nombrePropietario = @nombrePropietario, nombreInquilino = @nombreInquilino, direccion = @direccion, " +
+                            "fechaInicio = @fechaInicio, fechaFinal = @fechaFinal, monto = @monto, vigente = @vigente WHERE idContrato = @idContrato";
+                var comando = new MySqlCommand(query, conexion);
+                comando.Parameters.AddWithValue("@nombrePropietario", contrato.NombrePropietario);
+                comando.Parameters.AddWithValue("@nombreInquilino", contrato.NombreInquilino);
+                comando.Parameters.AddWithValue("@direccion", contrato.Direccion);
+                comando.Parameters.AddWithValue("@fechaInicio", contrato.FechaInicio);
+                comando.Parameters.AddWithValue("@fechaFinal", contrato.FechaFinal);
+                comando.Parameters.AddWithValue("@monto", contrato.Monto);
+                comando.Parameters.AddWithValue("@vigente", contrato.Vigente);
+                comando.Parameters.AddWithValue("@idContrato", contrato.IdContrato);
+
+                var filasAfectadas = comando.ExecuteNonQuery();
+                return filasAfectadas > 0;
+            }
+        }
+
+        // Método para eliminar un contrato por ID
+        public bool EliminarContrato(int id)
+        {
+            using (var conexion = new MySqlConnection(_connectionString))
+            {
+                conexion.Open();
+                var query = "DELETE FROM Contrato WHERE idContrato = @id";
+                var comando = new MySqlCommand(query, conexion);
+                comando.Parameters.AddWithValue("@id", id);
+
+                var filasAfectadas = comando.ExecuteNonQuery();
+                return filasAfectadas > 0;
+            }
+        }
+
+
+
+        // Método para buscar inquilinos
+        public List<Inquilino> BuscarInquilinos(string termino)
+        {
+            var lista = new List<Inquilino>();
+
+            using (var conexion = ObtenerConexion())
+            {
+                conexion.Open();
+                string query = @"SELECT * FROM inquilino 
+                         WHERE dniInquilino LIKE @termino OR nombreInquilino LIKE @termino OR apellidoInquilino LIKE @termino";
+
+                using (var cmd = new MySqlCommand(query, conexion))
+                {
+                    cmd.Parameters.AddWithValue("@termino", "%" + termino + "%");
+
+                    using (var reader = cmd.ExecuteReader())
+                    {
+                        while (reader.Read())
+                        {
+                            lista.Add(new Inquilino
+                            {
+                                DniInquilino = reader["dniInquilino"].ToString(),
+                                NombreInquilino = reader["nombreInquilino"].ToString(),
+                                ApellidoInquilino = reader["apellidoInquilino"].ToString()
+
+                            });
+                        }
+                    }
+                }
+            }
+
+            return lista;
+        }
+
+
+        public List<Inmueble> ObtenerInmueblesPorDni(string dni)
+        {
+            List<Inmueble> lista = new List<Inmueble>();
+            string query = "SELECT * FROM Inmueble WHERE dniPropietario = @dni";
+
+            using (var con = ObtenerConexion())
+            {
+                con.Open();
+                using (var cmd = new MySqlCommand(query, con))
+                {
+                    cmd.Parameters.AddWithValue("@dni", dni);
+                    using (var reader = cmd.ExecuteReader())
+                    {
+                        while (reader.Read())
+                        {
+                            lista.Add(new Inmueble
+                            {
+                                IdInmueble = Convert.ToInt32(reader["idInmueble"]),
+                                Calle = reader["calle"].ToString(),
+                                Nro = Convert.ToInt32(reader["nro"]),
+                                Piso = reader["piso"] != DBNull.Value ? Convert.ToInt32(reader["piso"]) : 0,
+                                Dpto = reader["dpto"] != DBNull.Value ? reader["dpto"].ToString() : "",
+                                Localidad = reader["localidad"].ToString()
+                            });
+                        }
+                    }
+                }
+            }
+
+            return lista;
+        }
+
+
     }
+
 }
+

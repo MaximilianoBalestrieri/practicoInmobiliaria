@@ -355,6 +355,7 @@
       <Private>True</Private>
       <Private>True</Private>
     </Reference>
+    <Reference Include="System.Runtime.Caching" />
     <Reference Include="System.Runtime.CompilerServices.Unsafe, Version=6.0.1.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
       <HintPath>..\packages\System.Runtime.CompilerServices.Unsafe.6.1.0\lib\net462\System.Runtime.CompilerServices.Unsafe.dll</HintPath>
     </Reference>
@@ -509,6 +510,7 @@
     <Compile Include="App_Start\BundleConfig.cs" />
     <Compile Include="App_Start\FilterConfig.cs" />
     <Compile Include="App_Start\RouteConfig.cs" />
+    <Compile Include="Controllers\ContratosController.cs" />
     <Compile Include="Controllers\InmueblesController.cs" />
     <Compile Include="Controllers\HomeController.cs" />
     <Compile Include="Controllers\InquilinosController.cs" />
@@ -516,8 +518,10 @@
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
+    <Compile Include="Models\Contrato.cs" />
     <Compile Include="Models\Inmueble.cs" />
     <Compile Include="Models\ConexionDB.cs" />
+    <Compile Include="Models\InmuebleEditViewModel.cs" />
     <Compile Include="Models\Inquilino.cs" />
     <Compile Include="Models\Propietario.cs" />
     <Compile Include="Program.cs" />
@@ -598,10 +602,17 @@
     <Content Include="Views\Inmuebles\Create.cshtml" />
     <Content Include="Views\Inmuebles\Edit.cshtml" />
     <Content Include="Views\Inmuebles\Delete.cshtml" />
+    <Content Include="Views\Contratos\Index.cshtml" />
+    <Content Include="Views\Contratos\Create.cshtml" />
+    <Content Include="Views\Contratos\Edit.cshtml" />
+    <Content Include="Views\Contratos\Delete.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
-    <Folder Include="Views\Contratos\" />
+    <Folder Include="Imagenes\EliminarFotoCarrusel\" />
+    <Folder Include="Imagenes\Inmuebles\" />
+    <Folder Include="Uploads\Carrusel\" />
+    <Folder Include="Uploads\Portadas\" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="Content\bootstrap.rtl.min.css.map" />

@@ -1,0 +1,170 @@
+﻿@model List<practicoInmobiliaria.Models.Contrato>
+@{
+    ViewData["Title"] = "Contratos";
+}
+
+<style>
+    thead {
+        background-color: black;
+        color: white;
+    }
+
+    table {
+        padding: 10px;
+        border-collapse: separate;
+        border-spacing: 0;
+        border-radius: 5px;
+        overflow: hidden;
+    }
+
+    thead tr:first-child th:first-child {
+        border-top-left-radius: 5px;
+    }
+
+    thead tr:first-child th:last-child {
+        border-top-right-radius: 5px;
+    }
+
+    /* Reducir la altura de las filas */
+    th, td {
+        padding: 5px 10px; /* Ajusta el padding vertical y horizontal */
+        font-size: 14px; /* Opcional: Reduce el tamaño de la fuente */
+    }
+
+    tr {
+        height: 30px; /* Ajusta la altura mínima de las filas */
+    }
+</style>
+
+
+<h2>Contratos</h2>
+
+<!-- Botón para agregar un nuevo Contrato -->
+<a href="@Url.Action("Create", "Contratos")" class="btn btn-primary">Crear Contratos</a>
+
+@* Mostrar mensaje si hay algún error o éxito *@
+@if (ViewBag.Mensaje != null)
+{
+    <div class="alert alert-info">@ViewBag.Mensaje</div>
+}
+
+@if (Model != null && Model.Count > 0)
+{
+    <input type="text" id="buscador" class="form-control mt-3 mb-3" placeholder="Buscar en la tabla...">
+
+    <table class="table">
+        <thead>
+            <tr>
+                <th onclick="ordenarTabla(0)" style="cursor: pointer;">ID</th>
+                <th onclick="ordenarTabla(1)" style="cursor: pointer;">Propietario</th>
+                <th onclick="ordenarTabla(2)" style="cursor: pointer;">Inquilino</th>
+                <th onclick="ordenarTabla(3)" style="cursor: pointer;">Dirección</th>
+                <th onclick="ordenarTabla(4)" style="cursor: pointer;">Inicio</th>
+                <th onclick="ordenarTabla(5)" style="cursor: pointer;">Fin</th>
+                <th onclick="ordenarTabla(6)" style="cursor: pointer;">Monto</th>
+                <th onclick="ordenarTabla(7)" style="cursor: pointer;">Vigente</th>
+                <th>Acciones</th>
+            </tr>
+        </thead>
+        <tbody id="tablaDatos">
+            @foreach (var contrato in Model)
+            {
+                <tr>
+                    <td>@contrato.IdContrato</td>
+                    <td>@contrato.NombrePropietario</td>
+                    <td>@contrato.NombreInquilino</td>
+                    <td>@contrato.Direccion</td>
+                    <td>@contrato.FechaInicio.ToString("dd/MM/yyyy")</td>
+                    <td>@contrato.FechaFinal.ToString("dd/MM/yyyy")</td>
+                    <td>@contrato.Monto</td>
+                    <td>@(contrato.Vigente ? "Sí" : "No")</td>
+                    <td>
+                        <a href="@Url.Action("Edit", "Contratos", new { id = contrato.IdContrato })" class="btn btn-warning btn-sm">Editar</a>
+                        <a href="@Url.Action("Delete", "Contratos", new { id = contrato.IdContrato })" class="btn btn-danger btn-sm">Eliminar</a>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+
+    <div id="paginacion" class="d-flex justify-content-between mt-3">
+        <button id="prevPagina" class="btn btn-secondary">Anterior</button>
+        <span id="numPagina"></span>
+        <button id="nextPagina" class="btn btn-secondary">Siguiente</button>
+    </div>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            // Búsqueda
+            document.getElementById("buscador").addEventListener("keyup", function () {
+                var valor = this.value.toLowerCase();
+                var filas = document.querySelectorAll("#tablaDatos tr");
+
+                filas.forEach(function (fila) {
+                    var textoFila = Array.from(fila.querySelectorAll("td:not(:last-child)")).map(td => td.innerText.toLowerCase()).join(" ");
+                    fila.style.display = textoFila.includes(valor) ? "" : "none";
+                });
+            });
+
+            // Paginación
+            const filas = Array.from(document.querySelectorAll("#tablaDatos tr"));
+            const filasPorPagina = 5;
+            let paginaActual = 1;
+
+            function mostrarPagina() {
+                const inicio = (paginaActual - 1) * filasPorPagina;
+                const fin = inicio + filasPorPagina;
+
+                filas.forEach((fila, i) => {
+                    fila.style.display = (i >= inicio && i < fin) ? "" : "none";
+                });
+
+                document.getElementById("numPagina").innerText = `Página ${paginaActual} de ${Math.ceil(filas.length / filasPorPagina)}`;
+            }
+
+            document.getElementById("prevPagina").addEventListener("click", function () {
+                if (paginaActual > 1) {
+                    paginaActual--;
+                    mostrarPagina();
+                }
+            });
+
+            document.getElementById("nextPagina").addEventListener("click", function () {
+                if (paginaActual < Math.ceil(filas.length / filasPorPagina)) {
+                    paginaActual++;
+                    mostrarPagina();
+                }
+            });
+
+            mostrarPagina();
+        });
+
+        function ordenarTabla(n) {
+            var tabla = document.querySelector(".table tbody");
+            var filas = Array.from(tabla.rows);
+            var ordenAscendente = tabla.getAttribute("data-orden") !== "asc";
+
+            filas.sort(function (filaA, filaB) {
+                var celdaA = filaA.cells[n].innerText.trim().toLowerCase();
+                var celdaB = filaB.cells[n].innerText.trim().toLowerCase();
+
+                if (!isNaN(celdaA) && !isNaN(celdaB)) {
+                    return ordenAscendente ? celdaA - celdaB : celdaB - celdaA;
+                }
+
+                return ordenAscendente ? celdaA.localeCompare(celdaB) : celdaB.localeCompare(celdaA);
+            });
+
+            tabla.innerHTML = "";
+            filas.forEach(fila => tabla.appendChild(fila));
+
+            tabla.setAttribute("data-orden", ordenAscendente ? "asc" : "desc");
+        }
+    </script>
+}
+else
+{
+    <p>No hay contratos disponibles para mostrar.</p>
+}
+
+
