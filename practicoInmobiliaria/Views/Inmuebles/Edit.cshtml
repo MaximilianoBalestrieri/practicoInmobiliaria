@@ -236,11 +236,17 @@
                             <div class="input-group">
                                 @Html.TextBoxFor(model => model.Inmueble.DniPropietario, new { @class = "form-control", maxlength = "12", style = "max-width: 150px;", type = "number", id = "dniPropietarioInput" })
 
-                                <div class="col-auto mb-3">
-                                    <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#modalBuscarPropietario">
+                                <div class="col-auto mb-3 d-flex align-items-center" style="margin-top: -32px;">
+                                    <button type="button" class="btn btn-primary me-3" data-bs-toggle="modal" data-bs-target="#modalBuscarPropietario">
                                         Buscar Propietario
                                     </button>
+                                    <div class="form-check mt-4">
+                                        @Html.CheckBoxFor(model => Model.Inmueble.Vigente, new { @class = "form-check-input" })
+                                        @Html.LabelFor(model => Model.Inmueble.Vigente, "Apta para alquilarse", new { @class = "form-check-label" })
+                                    </div>
+
                                 </div>
+
                             </div>
                             <div id="nombrePropietarioSeleccionado" class="mt-2 text-success fw-bold"></div>
                             @Html.ValidationMessageFor(model => model.Inmueble.DniPropietario, "", new { @class = "text-danger" })

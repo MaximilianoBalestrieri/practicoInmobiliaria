@@ -247,6 +247,27 @@ namespace practicoInmobiliaria.Controllers
 
         }
 
+        [HttpGet]
+        public JsonResult Ocupados(DateTime desde, DateTime hasta)
+        {
+            try
+            {
+                var lista = conexionDB.ObtenerInmueblesOcupados(desde, hasta);
+
+                // Asegurarse de que siempre devolvemos una lista, incluso si está vacía
+                return Json(lista ?? new List<Inmueble>(), JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                // Manejo de errores
+                return Json(new { error = ex.Message }, JsonRequestBehavior.AllowGet);
+            }
+        }
+
+
+
+
+
 
 
     }

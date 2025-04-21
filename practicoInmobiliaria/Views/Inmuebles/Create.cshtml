@@ -153,11 +153,16 @@
                             @Html.ValidationMessageFor(model => model.DniPropietario, "", new { @class = "text-danger" })
                             <small id="nombrePropietarioSeleccionado" class="text-muted d-block mt-1"></small>
                         </div>
-                        <div class="col-auto mb-3">
-                            <button type="button" class="btn btn-primary"  style="margin-top: -32px;" data-bs-toggle="modal" data-bs-target="#modalBuscarPropietario">
-                                Buscar Propietario
-                            </button>
-                        </div>
+                        <div class="col-auto mb-3 d-flex align-items-center" style="margin-top: -32px;">
+    <button type="button" class="btn btn-primary me-3" data-bs-toggle="modal" data-bs-target="#modalBuscarPropietario">
+        Buscar Propietario
+    </button>
+    <div class="form-check">
+        @Html.CheckBoxFor(model => model.Vigente, new { @class = "form-check-input", id = "vigenteCheckbox" })
+        <label class="form-check-label" for="vigenteCheckbox">Apta para alquilarse</label>
+    </div>
+</div>
+
                     </div>
 
                     <!-- Línea 2: Calle, Nro, Piso, Dpto, Localidad -->

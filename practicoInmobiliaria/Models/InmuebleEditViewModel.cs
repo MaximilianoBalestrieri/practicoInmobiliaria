@@ -9,6 +9,7 @@ namespace practicoInmobiliaria.Models
     {
         public Inmueble Inmueble { get; set; }
         public List<InmuebleFotoCarrusel> RutasCarrusel { get; set; } // Lista de fotos del carrusel
+        public bool Vigente { get; set; }
     }
 
 

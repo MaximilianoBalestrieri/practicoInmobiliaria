@@ -6,104 +6,120 @@
 
 <h2>Crear Contrato</h2>
 
-@using (Html.BeginForm("Create", "Contratos", FormMethod.Post, new { @class = "form-horizontal", role = "form" }))
-{
-    @Html.AntiForgeryToken()
 
+@using (Html.BeginForm("Create", "Contratos", FormMethod.Post, new { @class = "needs-validation", novalidate = "novalidate" }))
+{
+
+
+    @Html.AntiForgeryToken()
+<div>
+    <!-- Mostrar errores si los hay -->
+    @if (!ViewData.ModelState.IsValid)
+    {
+        <div class="alert alert-danger">
+            <ul>
+                @foreach (var error in ViewData.ModelState.Values.SelectMany(v => v.Errors))
+                {
+                    <li>@error.ErrorMessage</li>
+                }
+            </ul>
+        </div>
+    }
+
+</div>
     <div class="form-horizontal">
         <hr />
 
 
         <!-- Buscar y seleccionar PROPIETARIO -->
         <div class="row align-items-end mb-3">
-            <div class="col-md-4">
+            <div class="col-md-3">
                 <label class="form-label">DNI Propietario</label>
-                @Html.TextBoxFor(model => model.DniPropietario, new { @class = "form-control", id = "dniPropietarioInput", @readonly = "readonly" })
-
-
+                @Html.TextBoxFor(model => model.DniPropietario, new { @class = "form-control form-control-sm", style = "max-width: 120px;text-align: center;", id = "dniPropietarioInput", @readonly = "readonly" })
             </div>
-            <div class="col-md-4">
+            <div class="col-md-5">
                 <label class="form-label">Nombre Propietario</label>
-                @Html.TextBoxFor(model => model.NombrePropietario, new { @class = "form-control", id = "nombrePropietarioInput", @readonly = "readonly" })
-
+                @Html.TextBoxFor(model => model.NombrePropietario, new { @class = "form-control form-control-sm", style = "max-width: 350px;", id = "nombrePropietarioInput", @readonly = "readonly" })
             </div>
             <div class="col-md-4 d-flex align-items-end">
-                <button type="button" class="btn btn-primary w-100" data-bs-toggle="modal" data-bs-target="#modalBuscarPropietario">
+                <button type="button" class="btn btn-outline-primary btn-sm w-100" data-bs-toggle="modal" data-bs-target="#modalBuscarPropietario" style="max-width: 140px;">
                     Buscar Propietario
                 </button>
             </div>
         </div>
 
-
         <!-- Buscar y seleccionar INQUILINO -->
         <div class="row align-items-end mb-3">
-            <div class="col-md-4">
+            <div class="col-md-3">
                 <label class="form-label">DNI Inquilino</label>
-                @Html.TextBoxFor(model => model.DniInquilino, new { @class = "form-control", type = "number", id = "dniInquilinoInput" })
+                @Html.TextBoxFor(model => model.DniInquilino, new { @class = "form-control form-control-sm", style = "max-width: 120px;text-align: center;", type = "number", id = "dniInquilinoInput" })
             </div>
-            <div class="col-md-4">
+            <div class="col-md-5">
                 <label class="form-label">Nombre Inquilino</label>
-                @Html.TextBoxFor(model => model.NombreInquilino, new { @class = "form-control", @readonly = "readonly" })
+                @Html.TextBoxFor(model => model.NombreInquilino, new { @class = "form-control form-control-sm", style = "max-width: 350px;", @readonly = "readonly" })
             </div>
             <div class="col-md-4 d-flex align-items-end">
-                <button type="button" class="btn btn-primary w-100" data-bs-toggle="modal" data-bs-target="#modalBuscarInquilino">
+                <button type="button" class="btn btn-outline-primary btn-sm w-100" data-bs-toggle="modal" data-bs-target="#modalBuscarInquilino" style="max-width: 140px;">
                     Buscar Inquilino
                 </button>
             </div>
         </div>
 
-        <!-- DIRECCIONES -->
-        <div class="form-group">
-            @Html.HiddenFor(model => model.IdInmueble)
 
-            <div class="input-group mt-2">
-                <input type="text" id="direccion" name="direccion" class="form-control" readonly>
-                <button type="button" class="btn btn-primary" id="btnBuscarDireccion">Buscar Dirección</button>
+        <!-- Dirección -->
+        @Html.HiddenFor(model => model.IdInmueble)
+        <div class="row align-items-end mb-3">
+            <div class="col-md-8">
+                <label class="form-label">Dirección</label>
+                @Html.TextBoxFor(model => model.Direccion, new { @class = "form-control form-control-sm", style = "max-width: 500px;", @readonly = "readonly", id = "direccion" })
             </div>
-            
-        </div>
- 
-
-        <div class="form-group">
-            @Html.LabelFor(model => model.FechaInicio, htmlAttributes: new { @class = "control-label col-md-2" })
-            <div class="col-md-10">
-                @Html.TextBoxFor(model => model.FechaInicio, "{0:yyyy-MM-dd}", new { @class = "form-control", type = "date" })
-                @Html.ValidationMessageFor(model => model.FechaInicio, "", new { @class = "text-danger" })
+            <div class="col-md-4 d-flex align-items-end">
+                <button type="button" class="btn btn-outline-primary btn-sm w-100" id="btnBuscarDireccion" style="max-width: 140px;">
+                    Buscar Dirección
+                </button>
             </div>
         </div>
 
-        <div class="form-group">
-            @Html.LabelFor(model => model.FechaFinal, htmlAttributes: new { @class = "control-label col-md-2" })
-            <div class="col-md-10">
-                @Html.TextBoxFor(model => model.FechaFinal, "{0:yyyy-MM-dd}", new { @class = "form-control", type = "date" })
-                @Html.ValidationMessageFor(model => model.FechaFinal, "", new { @class = "text-danger" })
+        <!-- Fecha Inicio / Fecha Final / Monto / Vigente -->
+        <div class="row mb-3">
+            <div class="col-md-3">
+                <label class="form-label">Fecha Inicio</label>
+                @Html.TextBoxFor(model => model.FechaInicio, "{0:yyyy-MM-dd}", new { @class = "form-control form-control-sm", type = "date", style = "max-width: 170px;" })
             </div>
+            <div class="col-md-3">
+                <label class="form-label">Fecha Final</label>
+                @Html.TextBoxFor(model => model.FechaFinal, "{0:yyyy-MM-dd}", new { @class = "form-control form-control-sm", type = "date", style = "max-width: 170px;" })
+            </div>
+            <div class="col-md-3">
+                <label class="form-label">Monto</label>
+                @Html.TextBoxFor(model => model.Monto, new { @class = "form-control form-control-sm", type = "number", step = "0.01", style = "max-width: 120px;" })
+            </div>
+            <div class="col-md-3 d-flex align-items-center" style="display: none !important;">
+                <div class="form-check mt-4">
+                    <label class="form-check-label me-2">Vigente</label>
+                    @Html.CheckBoxFor(model => model.Vigente, new { @class = "form-check-input" })
+                </div>
+            </div>
+
         </div>
 
-        <div class="form-group">
-            @Html.LabelFor(model => model.Monto, htmlAttributes: new { @class = "control-label col-md-2" })
-            <div class="col-md-10">
-                @Html.TextBoxFor(model => model.Monto, new { @class = "form-control" })
-                @Html.ValidationMessageFor(model => model.Monto, "", new { @class = "text-danger" })
-            </div>
+        <!-- Botones -->
+        <div class="d-flex justify-content-center mt-4">
+            <button type="button" id="btnGuardar" class="btn btn-success me-2">Guardar</button>
+            @Html.ActionLink("Cancelar", "Index", null, new { @class = "btn btn-secondary" })
         </div>
 
-        <div class="form-group">
-            @Html.LabelFor(model => model.Vigente, htmlAttributes: new { @class = "control-label col-md-2" })
-            <div class="col-md-10">
-                @Html.CheckBoxFor(model => model.Vigente)
-                @Html.ValidationMessageFor(model => model.Vigente, "", new { @class = "text-danger" })
-            </div>
-        </div>
-
-        <div class="form-group">
-            <div class="col-md-offset-2 col-md-10">
-                <input type="submit" value="Guardar" class="btn btn-primary" />
-                @Html.ActionLink("Cancelar", "Index", null, new { @class = "btn btn-secondary" })
-            </div>
-        </div>
-
-
+        <!--
+                    @if (!ViewData.ModelState.IsValid)
+                    {
+                        <div class="alert alert-danger">
+                            @foreach (var error in ViewData.ModelState.Values.SelectMany(v => v.Errors))
+                            {
+                                <div>@error.ErrorMessage</div>
+                            }
+                        </div>
+                    }
+            -->
         <!-- Modal Buscar Propietario -->
         <div class="modal fade" id="modalBuscarPropietario" tabindex="-1" aria-labelledby="buscarPropietarioLabel" aria-hidden="true">
             <div class="modal-dialog modal-lg">
@@ -179,6 +195,28 @@
         <script>
             document.addEventListener("DOMContentLoaded", function () {
 
+                //----------------- VALIDACION DE FECHAS ------------------
+                const form = document.querySelector("form");
+                const btnGuardar = document.getElementById("btnGuardar");
+
+                btnGuardar.addEventListener("click", function (e) {
+                    const fechaInicio = document.getElementById("FechaInicio").value;
+                    const fechaFinal = document.getElementById("FechaFinal").value;
+
+                    // Validación de fechas solo cuando se hace clic en "Guardar"
+                    if (fechaInicio && fechaFinal && fechaFinal < fechaInicio) {
+                        e.preventDefault(); // Evitar el envío si las fechas son incorrectas
+                        alert("La fecha final no puede ser anterior a la fecha de inicio");
+                        return; // Detenemos la ejecución
+                    }
+
+                    // Si todo está bien, enviamos el formulario
+                    form.submit(); // Enviar el formulario
+                });
+
+
+
+
                 // ------------ DIRECCIONES ---------------------
                 const btnBuscarDireccion = document.getElementById("btnBuscarDireccion");
 
@@ -214,14 +252,14 @@
                                     const row = document.createElement("tr");
                                     const direccionEscapada = d.direccion.replace(/'/g, "\\'");
                                     row.innerHTML = `
-                        <td>${d.id}</td>
-                        <td>${d.direccion}</td>
-                        <td>
-                            <button class="btn btn-success" onclick="seleccionarDireccion(${d.id}, '${direccionEscapada}')">
-                                Seleccionar
-                            </button>
-                        </td>
-                    `;
+                                                                                            <td>${d.id}</td>
+                                                                                            <td>${d.direccion}</td>
+                                                                                            <td>
+                                                                                                <button class="btn btn-success" onclick="seleccionarDireccion(${d.id}, '${direccionEscapada}')">
+                                                                                                    Seleccionar
+                                                                                                </button>
+                                                                                            </td>
+                                                                                        `;
                                     lista.appendChild(row);
                                 });
                             })
@@ -247,9 +285,15 @@
 
 
                 window.seleccionarDireccion = function (id, direccion) {
-                    document.getElementById("IdInmueble").value = id; // Rellena el input del IdInmueble
-                    document.getElementById("direccion").value = direccion; // (si tenés un campo visual de dirección)
+                    if (id) { // Verificar si id no está vacío
+                        document.getElementById("IdInmueble").value = id;
+                        document.getElementById("direccion").value = direccion;
+                    } else {
+                        alert("Por favor, selecciona un inmueble válido.");
+                    }
                     bootstrap.Modal.getInstance(document.getElementById("modalBuscarDireccion")).hide();
+                
+
                 };
 
 
@@ -288,15 +332,15 @@
                                     data.forEach(p => {
                                         const row = document.createElement("tr");
                                         row.innerHTML = `
-                                                                                <td>${p.DniPropietario}</td>
-                                                                                <td>${p.ApellidoPropietario}</td>
-                                                                                <td>${p.NombrePropietario}</td>
-                                                                                <td>
-                                                                                    <button class="btn btn-success" onclick="seleccionarPropietario('${p.DniPropietario}', '${p.NombrePropietario}', '${p.ApellidoPropietario}')">
-                                                                                        Seleccionar
-                                                                                    </button>
-                                                                                </td>
-                                                                            `;
+                                                                                                   <td>${p.DniPropietario}</td>
+                                                                                                   <td>${p.ApellidoPropietario}</td>
+                                                                                                   <td>${p.NombrePropietario}</td>
+                                                                                                   <td>
+                                                                                                      <button class="btn btn-success" onclick="seleccionarPropietario('${p.DniPropietario}', '${p.NombrePropietario}', '${p.ApellidoPropietario}')">
+                                                                                                              Seleccionar
+                                                                                                      </button>
+                                                                                                   </td>
+                                                                                                          `;
                                         lista.appendChild(row);
                                     });
                                 })
@@ -346,15 +390,15 @@
                                     data.forEach(p => {
                                         const row = document.createElement("tr");
                                         row.innerHTML = `
-                                        <td>${p.Dni}</td>
-                                        <td>${p.Apellido}</td>
-                                        <td>${p.Nombre}</td>
-                                        <td>
-                                            <button class="btn btn-success" onclick="seleccionarInquilino('${p.Dni}', '${p.Nombre}', '${p.Apellido}')">
-                                                Seleccionar
-                                            </button>
-                                        </td>
-                                    `;
+                                                                                                            <td>${p.Dni}</td>
+                                                                                                            <td>${p.Apellido}</td>
+                                                                                                            <td>${p.Nombre}</td>
+                                                                                                            <td>
+                                                                                                                <button class="btn btn-success" onclick="seleccionarInquilino('${p.Dni}', '${p.Nombre}', '${p.Apellido}')">
+                                                                                                                    Seleccionar
+                                                                                                                </button>
+                                                                                                            </td>
+                                                                                                        `;
                                         lista.appendChild(row);
                                     });
 

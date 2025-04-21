@@ -1,42 +1,558 @@
 ﻿@model practicoInmobiliaria.Models.Contrato
 
 @{
-    ViewData["Title"] = "Editar Contrato";
+    ViewBag.Title = "Editar Contrato";
 }
 
-<h2>Editar Contrato</h2>
+<head>
+    <style>
+        th {
+            text-align: center;
+            background-color: #d4edda; /* verde claro SIEMPRE */
+            cursor: pointer;
+            position: relative;
+            transition: all 0.3s ease;
+            user-select: none;
+        }
 
-<form asp-action="Edit">
-    <input type="hidden" asp-for="IdContrato" />
-    <div class="form-group">
-        <label>DNI Propietario</label>
-        <input asp-for="DniPropietario" class="form-control" />
-    </div>
-    <div class="form-group">
-        <label>DNI Inquilino</label>
-        <input asp-for="DniInquilino" class="form-control" />
-    </div>
-    <div class="form-group">
-        <label>ID Inmueble</label>
-        <input asp-for="IdInmueble" class="form-control" />
-    </div>
-    <div class="form-group">
-        <label>Fecha Inicio</label>
-        <input asp-for="FechaInicio" type="date" class="form-control" />
-    </div>
-    <div class="form-group">
-        <label>Fecha Final</label>
-        <input asp-for="FechaFinal" type="date" class="form-control" />
-    </div>
-    <div class="form-group">
-        <label>Monto</label>
-        <input asp-for="Monto" type="number" step="0.01" class="form-control" />
-    </div>
-    <div class="form-check">
-        <input asp-for="Vigente" class="form-check-input" />
-        <label class="form-check-label">Vigente</label>
-    </div>
-    <button type="submit" class="btn btn-success mt-3">Guardar cambios</button>
-    <a asp-action="Index" class="btn btn-secondary mt-3">Cancelar</a>
-</form>
+            /* Efecto hover */
+            th:hover {
+                background-color: #c3e6cb;
+                text-decoration: underline;
+            }
 
+            /* Tooltip */
+            th::after {
+                content: "Ordenar";
+                position: absolute;
+                bottom: -1.5em;
+                left: 50%;
+                transform: translateX(-50%);
+                background-color: #28a745;
+                color: white;
+                padding: 2px 8px;
+                font-size: 12px;
+                border-radius: 5px;
+                opacity: 0;
+                pointer-events: none;
+                transition: opacity 0.3s ease;
+                white-space: nowrap;
+            }
+
+            th:hover::after {
+                opacity: 1;
+            }
+
+        /* Flechitas */
+        .th-orden-asc::before {
+            content: "↑ ";
+        }
+
+        .th-orden-desc::before {
+            content: "↓ ";
+        }
+
+
+       .fixed-right {
+    position: fixed;
+    top: 57px;
+    right: -40px; /* Más cerca del margen derecho */
+    width: 750px; /* Más ancho para que los botones no se solapen */
+    height: 460px;
+    padding: 15px;
+}
+
+
+        .card {
+            height: 100%;
+        }
+
+        .card-header {
+            background-color: #f8f9fa;
+            padding: 10px;
+            border-bottom: 1px solid #ddd;
+        }
+
+        .card-body {
+            padding: 10px;
+            overflow-y: auto;
+        }
+
+        table {
+            width: 100%;
+            margin-top: 20px;
+        }
+
+        .card-body form .mb-3 {
+            margin-bottom: 8px; /* antes eran 16px */
+        }
+
+        .card-body form input,
+        .card-body form select {
+            padding: 4px 8px;
+            font-size: 0.9rem;
+        }
+
+        .small-form * {
+            font-size: 0.75rem !important;
+        }
+
+        #formularioPagos {
+            font-size: 11px !important;
+        }
+
+            #formularioPagos .form-control,
+            #formularioPagos .form-label,
+            #formularioPagos select,
+            #formularioPagos button {
+                font-size: 0.65rem !important;
+                padding: 2px 6px !important;
+                height: auto !important;
+                line-height: 1.2 !important;
+            }
+
+        .fixed-right table,
+        .fixed-right th,
+        .fixed-right td {
+            font-size: 0.75rem; /* Esto achica la letra */
+        }
+
+        .table th,
+        .table td {
+            font-size: 12px !important;
+            padding-top: 4px !important;
+            padding-bottom: 4px !important;
+        }
+    </style>
+
+</head>
+<body>
+
+    <h2>Editar Contrato</h2>
+
+
+    @using (Html.BeginForm("Edit", "Contratos", FormMethod.Post, new { @class = "form-horizontal", role = "form" }))
+    {
+        @Html.AntiForgeryToken()
+
+        <!-- Campo oculto para IdContrato -->
+        @Html.HiddenFor(model => model.IdContrato)
+
+        <div class="form-horizontal">
+            <hr />
+
+            <!--  PROPIETARIO -->
+            <div class="row align-items-end mb-3 g-2">
+                <div class="col-auto">
+                    <label class="form-label">DNI Propietario</label>
+                    @Html.TextBoxFor(model => model.DniPropietario, new
+               {
+                   @class = "form-control form-control-sm",
+                   style = "width: 150px;",
+                   id = "dniPropietarioInput",
+                   @readonly = "readonly"
+               })
+                </div>
+                <div class="col-auto">
+                    <label class="form-label">Nombre Propietario</label>
+                    @Html.TextBoxFor(model => model.NombrePropietario, new
+               {
+                   @class = "form-control form-control-sm",
+                   id = "nombrePropietarioInput",
+                   @readonly = "readonly",
+                   style = "width: 300px;"
+               })
+                </div>
+            </div>
+
+            <!--  INQUILINO -->
+            <div class="row align-items-end mb-3 g-2">
+                <div class="col-auto">
+                    <label class="form-label">DNI Inquilino</label>
+                    @Html.TextBoxFor(model => model.DniInquilino, new
+               {
+                   @class = "form-control form-control-sm",
+                   style = "width: 150px;",
+                   type = "number",
+                   id = "dniInquilinoInput"
+               })
+                </div>
+                <div class="col-auto">
+                    <label class="form-label">Nombre Inquilino</label>
+                    @Html.TextBoxFor(model => model.NombreInquilino, new
+               {
+                   @class = "form-control form-control-sm",
+                   @readonly = "readonly",
+                   style = "width: 300px;"
+               })
+                </div>
+            </div>
+
+            <!-- Dirección -->
+            @Html.HiddenFor(model => model.IdInmueble)
+            <div class="row align-items-end mb-3">
+                <div class="col-md-8">
+                    <label class="form-label">Dirección</label>
+                    @Html.TextBoxFor(model => model.Direccion, new { @class = "form-control form-control-sm", @readonly = "readonly", id = "direccion" })
+                </div>
+                <div class="col-md-4 d-flex align-items-end">
+                    <!--   <button type="button" class="btn btn-outline-primary btn-sm w-100" id="btnBuscarDireccion">
+                        Buscar Dirección
+                    </button> -->
+                </div>
+            </div>
+
+            <!-- Fecha Inicio / Fecha Final / Monto / Vigente -->
+            <div class="row mb-3 g-2">
+                <div class="col-auto d-flex flex-column">
+                    <label class="form-label">Fecha Inicio</label>
+                    @Html.TextBoxFor(model => model.FechaInicio, "{0:yyyy-MM-dd}", new
+               {
+                   @class = "form-control form-control-sm",
+                   type = "date",
+                   style = "width: 150px;"
+               })
+                </div>
+                <div class="col-auto d-flex flex-column">
+                    <label class="form-label">Fecha Final</label>
+                    @Html.TextBoxFor(model => model.FechaFinal, "{0:yyyy-MM-dd}", new
+               {
+                   @class = "form-control form-control-sm",
+                   type = "date",
+                   style = "width: 150px;"
+               })
+                </div>
+                <div class="col-auto d-flex flex-column">
+                    <label class="form-label">Monto</label>
+                    @Html.TextBoxFor(model => model.Monto, new
+               {
+                   @class = "form-control form-control-sm",
+                   type = "number",
+                   step = "0.01",
+                   style = "width: 100px;"
+               })
+                </div>
+                <div class="d-none">
+                    @Html.CheckBoxFor(model => model.Vigente)
+                </div>
+            </div>
+
+            <!-- Botones -->
+            <div class="d-flex justify-content-end mt-4" style="margin-right: 800px;">
+                <input type="submit" value="Guardar Cambios" class="btn btn-success me-2" />
+                @Html.ActionLink("Cancelar", "Index", null, new { @class = "btn btn-secondary" })
+            </div>
+
+        </div>
+    }
+    <!-- CIERRE del formulario principal -->
+    <!-- Acá empieza el divPagos, ya fuera del form principal -->
+    <div id="divPagos" class="fixed-right">
+        <div class="card" style="width: 680px;">
+            <div class="card-header">
+                <h5 class="card-title">Pagos</h5>
+            </div>
+            <div class="card-body">
+                <!-- Formulario de pago -->
+                <form id="formularioPagos" onsubmit="crearPago(event)" novalidate>
+
+                    <!-- Campo oculto para el idContrato -->
+                    <input type="hidden" id="idContrato" name="idContrato" value="@Model.IdContrato" />
+
+                    <!-- Fila 1 -->
+                    <div class="d-flex gap-2 mb-2">
+                        <div>
+                            <label for="nuevoNroPago" class="form-label mb-1" style="font-size: 0.75rem;">N° Pago</label>
+                            <input type="number" id="nuevoNroPago" name="nuevoNroPago" class="form-control" style="width: 120px; font-size: 0.75rem;" required>
+                        </div>
+                        <div>
+                            <label for="nuevoFecha" class="form-label mb-1" style="font-size: 0.75rem;">Fecha</label>
+                            <input type="date" id="nuevoFecha" name="nuevoFecha" class="form-control" style="width: 120px; font-size: 0.75rem;" required>
+                        </div>
+                        <div>
+                            <label for="nuevoImporte" class="form-label mb-1" style="font-size: 0.75rem;">Importe</label>
+                            <input type="number" step="0.01" id="nuevoImporte" name="nuevoImporte" class="form-control" style="width: 120px; font-size: 0.75rem;" required>
+                        </div>
+                        <div>
+                            <label for="estadoPago" class="form-label mb-1" style="font-size: 0.75rem;">Estado</label>
+                            <select id="estadoPago" name="estadoPago" class="form-control" style="width: 80px; font-size: 0.75rem; margin-right: 30px;">
+                                <option value="Pagado">Pagado</option>
+                                <option value="Pendiente">Pendiente</option>
+                                <option value="Anulado">Anulado</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- Fila 2 -->
+                    <div class="mb-3">
+                        <label for="nuevoDetalle" class="form-label mb-1" style="font-size: 0.75rem;">Detalle</label>
+                        <div class="d-flex" style="gap: 8px;">
+                            <input type="text" id="nuevoDetalle" name="nuevoDetalle" class="form-control" style="font-size: 0.75rem;">
+                            <button type="submit" class="btn btn-success btn-sm">Agregar</button>
+                        </div>
+                    </div>
+
+                </form>
+
+                @if (ViewBag.Pagos != null && ((List<practicoInmobiliaria.Models.Pago>)ViewBag.Pagos).Count > 0)
+                {
+                    <table class="table table-striped mt-4">
+                        <thead class="table-success text-black">
+
+                            <tr>
+                                <th class="text-center" onclick="ordenarPor('NroPago')">N° Pago</th>
+                                <th onclick="ordenarPor('Fecha')">Fecha</th>
+                                <th class="text-end" onclick="ordenarPor('Importe')">Importe</th>
+                                <th onclick="ordenarPor('Detalle')">Detalle</th>
+                                <th onclick="ordenarPor('Estado')">Estado</th>
+                                <th>Acciones</th>
+
+                            </tr>
+
+                        </thead>
+                        <tbody id="tablaPagos">
+                            @foreach (var pago in (List<practicoInmobiliaria.Models.Pago>)ViewBag.Pagos)
+                            {
+                                bool esAnulado = pago.Estado == "Anulado";
+
+                                <tr id="fila-pago-@pago.IdPago">
+                                    <td class="text-center">@pago.NroPago</td>
+                                    <td>@pago.FechaPago.ToString("yyyy-MM-dd")</td>
+                                    <td class="text-end">@pago.Importe</td>
+                                    <td>@pago.Detalle</td>
+                                    <td class="estado">@pago.Estado</td>
+                                    <td>
+                                        <button class="btn btn-sm btn-primary me-1"
+                                                onclick="editarPago(@pago.IdPago)"
+                                                data-id="@pago.IdPago"
+                                                @(esAnulado ? "disabled" : "")>
+                                            Editar
+                                        </button>
+
+                                        <button class="btn btn-sm btn-danger eliminar-btn"
+                                                onclick="eliminarPago(@pago.IdPago)"
+                                                @(esAnulado ? "disabled" : "")>
+                                            Eliminar
+                                        </button>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+
+
+                }
+                else
+                {
+                    <p>No hay pagos aún para este contrato</p>
+                }
+
+            </div>
+        </div>
+    </div>
+
+
+
+
+    <script>
+
+        function actualizarCabeceras(campo) {
+    const ths = document.querySelectorAll("thead th");
+    ths.forEach(th => {
+        th.classList.remove("th-orden-asc", "th-orden-desc");
+        if (th.innerText.toLowerCase().includes(campo.toLowerCase())) {
+            th.classList.add(ordenAscendente ? "th-orden-asc" : "th-orden-desc");
+        }
+    });
+}
+
+
+    function crearPago(event) {
+        event.preventDefault();
+
+        const nuevoPago = {
+            IdContrato: document.getElementById("idContrato").value,
+            NroPago: document.getElementById("nuevoNroPago").value,
+            FechaPago: document.getElementById("nuevoFecha").value,
+            Importe: document.getElementById("nuevoImporte").value,
+            Detalle: document.getElementById("nuevoDetalle").value,
+            Estado: document.getElementById("estadoPago").value
+        };
+
+        console.log("Voy a enviar:", nuevoPago);
+
+        fetch('/Contratos/AgregarPago', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(nuevoPago)
+        })
+            .then(async response => {
+                const contentType = response.headers.get("content-type");
+                if (contentType && contentType.includes("application/json")) {
+                    const data = await response.json();
+                    console.log("Respuesta del servidor:", data);
+
+                    if (data.success) {
+                        location.reload();
+                    } else {
+                        alert("No se pudo agregar el pago");
+                    }
+                } else {
+                    throw new Error("Respuesta no es JSON válida");
+                }
+            })
+            .catch(error => {
+                console.error("Error:", error);
+                alert("Ocurrió un error al agregar el pago: " + error.message);
+            });
+    }
+
+    async function cargarPagos(idContrato) {
+        const response = await fetch(`/Pagos/GetByContrato/${idContrato}`);
+        let pagos = await response.json();
+
+        pagos.sort((a, b) => a.nroPago - b.nroPago);
+
+        const tablaPagos = document.getElementById('tablaPagos');
+        tablaPagos.innerHTML = '';
+
+        pagos.forEach(pago => {
+            const fila = document.createElement('tr');
+            fila.innerHTML = `
+        <td>${pago.nroPago}</td>
+        <td>${new Date(pago.fecha).toLocaleDateString()}</td>
+        <td>$${pago.importe.toFixed(2)}</td>
+        <td>${pago.detalle || ''}</td>
+        <td>${pago.estado}</td>
+    `;
+            tablaPagos.appendChild(fila);
+        });
+    }
+
+    function eliminarPago(idPago) {
+        if (confirm("¿Estás seguro que querés anular este pago")) {
+            fetch('@Url.Action("AnularPago", "Pagos")', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ idPago: idPago }),
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        const fila = document.querySelector(`#fila-pago-${idPago}`);
+                        if (fila) {
+                            const celdas = fila.getElementsByTagName("td");
+                            celdas[4].innerText = "Anulado";
+
+                            const btns = fila.querySelectorAll("button");
+                            btns.forEach(btn => {
+                                btn.disabled = true;
+                                btn.classList.add("btn-secondary");
+                                btn.classList.remove("btn-primary", "btn-danger");
+                            });
+                        }
+
+                        alert("Pago anulado exitosamente");
+                    } else {
+                        alert("No se pudo anular: " + data.message);
+                    }
+                })
+                .catch(error => {
+                    console.error("Error:", error);
+                    alert("Ups, algo falló!! ");
+                });
+        }
+    }
+
+    function editarPago(idPago) {
+        let boton = document.querySelector(`button[data-id="${idPago}"]`);
+        if (!boton) {
+            alert("No se encontró el botón para editar 😢");
+            return;
+        }
+        let fila = boton.closest('tr');
+
+        let detalleCell = fila.querySelector('td:nth-child(4)');
+
+        let detalleText = detalleCell.innerText;
+        detalleCell.innerHTML = `<input type="text" class="form-control" value="${detalleText}">`;
+
+        let botonEditar = fila.querySelector('button');
+        botonEditar.innerText = 'Guardar';
+        botonEditar.setAttribute('onclick', `guardarPago(${idPago})`);
+    }
+
+    function guardarPago(idPago) {
+        let fila = document.querySelector(`button[data-id="${idPago}"]`).closest('tr');
+        let detalleInput = fila.querySelector('td:nth-child(4) input');
+        let nuevoDetalle = detalleInput.value;
+
+        fetch('/Pagos/ActualizarDetalle', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ idPago: idPago, detalle: nuevoDetalle })
+        })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    fila.querySelector('td:nth-child(4)').innerText = nuevoDetalle;
+                    let botonGuardar = fila.querySelector('button');
+                    botonGuardar.innerText = 'Editar';
+                    botonGuardar.setAttribute('onclick', `editarPago(${idPago})`);
+                } else {
+                    alert('Hubo un problema al actualizar el detalle.');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Ups, algo falló al guardar el detalle.');
+            });
+    }
+
+    // 💖 ORDENAMIENTO DE TABLA
+    document.addEventListener("DOMContentLoaded", () => {
+        const tabla = document.querySelector("table");
+        const headers = tabla.querySelectorAll("th");
+        let ordenAscendente = true;
+
+        headers.forEach((header, indice) => {
+            header.addEventListener("click", () => {
+                ordenarTabla(indice);
+                ordenAscendente = !ordenAscendente;
+            });
+        });
+
+        function ordenarTabla(columna) {
+            const tbody = tabla.querySelector("tbody");
+            const filas = Array.from(tbody.querySelectorAll("tr"));
+
+            filas.sort((a, b) => {
+                let celdaA = a.children[columna].innerText.trim();
+                let celdaB = b.children[columna].innerText.trim();
+
+                let valorA = isNaN(celdaA) ? celdaA.toLowerCase() : parseFloat(celdaA);
+                let valorB = isNaN(celdaB) ? celdaB.toLowerCase() : parseFloat(celdaB);
+
+                if (valorA < valorB) return ordenAscendente ? -1 : 1;
+                if (valorA > valorB) return ordenAscendente ? 1 : -1;
+                return 0;
+            });
+
+            tbody.innerHTML = '';
+            filas.forEach(fila => tbody.appendChild(fila));
+        }
+    });
+
+    </script>
+
+
+
+
+
+</body>

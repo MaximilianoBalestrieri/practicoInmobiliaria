@@ -514,6 +514,7 @@
     <Compile Include="Controllers\InmueblesController.cs" />
     <Compile Include="Controllers\HomeController.cs" />
     <Compile Include="Controllers\InquilinosController.cs" />
+    <Compile Include="Controllers\PagosController.cs" />
     <Compile Include="Controllers\PropietariosController.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
@@ -523,6 +524,7 @@
     <Compile Include="Models\ConexionDB.cs" />
     <Compile Include="Models\InmuebleEditViewModel.cs" />
     <Compile Include="Models\Inquilino.cs" />
+    <Compile Include="Models\pago.cs" />
     <Compile Include="Models\Propietario.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

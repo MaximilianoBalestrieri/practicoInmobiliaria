@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Web;
+using System.Web.Mvc;
 
 namespace practicoInmobiliaria.Controllers
 {
@@ -25,18 +26,26 @@ namespace practicoInmobiliaria.Controllers
             return View();
         }
 
-        // POST: Contratos/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
         public ActionResult Create(Contrato contrato)
         {
+            if (!db.VerificarDisponibilidad(contrato))
+            {
+                ModelState.AddModelError("", "El inmueble ya tiene un contrato en esas fechas.");
+            }
+
             if (ModelState.IsValid)
             {
                 db.AgregarContrato(contrato); // Asegurate de tener este método en ConexionDB
                 return RedirectToAction("Index");
             }
+
             return View(contrato);
         }
+
+
+
 
         public ActionResult BuscarPropietarios(string termino)
         {
@@ -60,6 +69,143 @@ namespace practicoInmobiliaria.Controllers
                 .ToList();
             return Json(lista);
         }
+        [HttpGet]
+        public ActionResult Edit(int id)
+        {
+            var contrato = db.ObtenerContratoPorId(id);
+            if (contrato == null)
+            {
+                return HttpNotFound();
+            }
+
+            var pagos = db.ObtenerPagosPorContrato(id); // asegurate de tener este método en ConexionDB
+            ViewBag.Pagos = pagos;
+
+            return View(contrato);
+        }
+
+
+
+        [HttpPost]
+        public ActionResult Edit(Contrato contrato)
+        {
+            if (ModelState.IsValid)
+            {
+                var exito = db.EditarContrato(
+                    contrato.IdContrato,
+                    contrato.FechaInicio,
+                    contrato.FechaFinal,
+                    contrato.Monto
+                );
+
+                if (exito)
+                {
+                    return RedirectToAction("Index");
+                }
+            }
+
+            // Si hay error, se vuelve a mostrar el formulario con los datos ingresados
+            return View(contrato);
+        }
+
+        public ActionResult Delete(int id)
+        {
+            var contrato = db.ObtenerContratoPorId(id);
+            if (contrato == null)
+                return HttpNotFound();
+
+            return View(contrato);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public ActionResult DeleteConfirmed(int id)
+        {
+            db.EliminarContrato(id);
+            return RedirectToAction("Index");
+        }
+
+
+        public JsonResult AgregarPago(Pago pago)
+        {
+            bool exito = false;
+
+            try
+            {
+                exito = db.AgregarPago(pago); // Tu método para guardar
+                return Json(new { success = exito });
+            }
+            catch (Exception ex)
+            {
+                // Enviar el mensaje de error completo
+                return Json(new { success = false, message = "Error: " + ex.Message });
+            }
+        }
+
+        public JsonResult AnularPago(int idPago)
+        {
+            try
+            {
+                var db = new ConexionDB();
+                db.AnularPago(idPago); // Aquí llamamos al método AnularPago
+                return Json(new { success = true });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, message = ex.Message });
+            }
+        }
+
+        [HttpPost]
+        public JsonResult ActualizarDetalle(int idPago, string detalle)
+        {
+            try
+            {
+                ConexionDB db = new ConexionDB();
+                db.ActualizarDetalle(idPago, detalle);
+
+                return Json(new { success = true });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, error = ex.Message });
+            }
+        }
+
+        [HttpGet]
+        public JsonResult BuscarContratos(DateTime desde, DateTime hasta)
+        {
+            try
+            {
+                if (hasta < desde)
+                {
+                    return Json(new { error = "La fecha 'hasta' no puede ser menor que la fecha 'desde'." }, JsonRequestBehavior.AllowGet);
+                }
+
+                ConexionDB conexionDB = new ConexionDB();
+                var contratos = conexionDB.BuscarContratos(desde, hasta);
+
+                foreach (var contrato in contratos)
+                {
+                    var propietario = conexionDB.ObtenerPropietarioPorDni(contrato.DniPropietario);
+                    var inquilino = conexionDB.ObtenerInquilinoPorDni(contrato.DniInquilino);
+
+                    contrato.NombrePropietario = propietario?.NombrePropietario + " " + propietario?.ApellidoPropietario;
+                    contrato.NombreInquilino = inquilino?.NombreInquilino + " " + inquilino?.ApellidoInquilino;
+                }
+
+                return Json(contratos, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                return Json(new { error = ex.Message }, JsonRequestBehavior.AllowGet);
+            }
+        }
+
+
+
+
+
 
 
     }

@@ -41,7 +41,9 @@ namespace practicoInmobiliaria.Models
 
         [Required(ErrorMessage = "El precio es obligatorio")]
         public double Precio { get; set; }
-
+        
+        public bool Vigente { get; set; }
+        
         public string ImagenPortada { get; set; }
 
         // Si querés mantener estas listas:
@@ -50,9 +52,13 @@ namespace practicoInmobiliaria.Models
 
         // Si querés guardar una cadena de rutas para insertarlas luego
         public string FotosCarrusel { get; set; } // <-- AGREGAR ESTO si lo vas a usar como string con ;
+
+        
+
+
     }
 
-   
+
 
     public class InmuebleFotoCarrusel
     {
@@ -67,5 +73,20 @@ namespace practicoInmobiliaria.Models
         public string RutaFoto { get; set; }
     }
 
-   
+
+
+    public class InmuebleDTO
+    {
+        public int IdInmueble { get; set; }
+        public string DniPropietario { get; set; }
+        public string Calle { get; set; }
+        public int Nro { get; set; }
+        public int Piso { get; set; }
+        public string Dpto { get; set; }
+        public string Localidad { get; set; }
+        public string Provincia { get; set; }
+        public double Precio { get; set; }
+        public bool Vigente { get; set; }
+    }
+
 }

@@ -48,11 +48,27 @@
     <div class="alert alert-info">@ViewBag.Mensaje</div>
 }
 
+<div class="row mb-3">
+    <div class="col-md-3">
+        <label for="fechaInicioContrato">Desde:</label>
+        <input type="date" id="fechaInicioContrato" class="form-control" />
+    </div>
+    <div class="col-md-3">
+        <label for="fechaFinContrato">Hasta:</label>
+        <input type="date" id="fechaFinContrato" class="form-control" />
+    </div>
+    <div class="col-md-3 d-flex align-items-end">
+        <button class="btn btn-primary" onclick="buscarContratos()">Buscar Contratos</button>
+    </div>
+</div>
+
+
 @if (Model != null && Model.Count > 0)
 {
     <input type="text" id="buscador" class="form-control mt-3 mb-3" placeholder="Buscar en la tabla...">
 
-    <table class="table">
+    <table class="table" id="tablaContratos">
+
         <thead>
             <tr>
                 <th onclick="ordenarTabla(0)" style="cursor: pointer;">ID</th>
@@ -62,7 +78,8 @@
                 <th onclick="ordenarTabla(4)" style="cursor: pointer;">Inicio</th>
                 <th onclick="ordenarTabla(5)" style="cursor: pointer;">Fin</th>
                 <th onclick="ordenarTabla(6)" style="cursor: pointer;">Monto</th>
-                <th onclick="ordenarTabla(7)" style="cursor: pointer;">Vigente</th>
+                <th class="col-vigente" style="display: none;">Vigente</th>
+
                 <th>Acciones</th>
             </tr>
         </thead>
@@ -77,9 +94,10 @@
                     <td>@contrato.FechaInicio.ToString("dd/MM/yyyy")</td>
                     <td>@contrato.FechaFinal.ToString("dd/MM/yyyy")</td>
                     <td>@contrato.Monto</td>
-                    <td>@(contrato.Vigente ? "Sí" : "No")</td>
+                    <td class="col-vigente" style="display: none;">@(contrato.Vigente ? "Sí" : "No")</td>
+
                     <td>
-                        <a href="@Url.Action("Edit", "Contratos", new { id = contrato.IdContrato })" class="btn btn-warning btn-sm">Editar</a>
+                        <a href="@Url.Action("Edit", "Contratos", new { id = contrato.IdContrato })" class="btn btn-warning btn-sm">Ver/Editar</a>
                         <a href="@Url.Action("Delete", "Contratos", new { id = contrato.IdContrato })" class="btn btn-danger btn-sm">Eliminar</a>
                     </td>
                 </tr>
@@ -94,8 +112,99 @@
     </div>
 
     <script>
+        function formatearFecha(fechaJson) {
+            const fecha = new Date(parseInt(fechaJson.replace("/Date(", "").replace(")/", "")));
+            return fecha.toLocaleDateString("es-AR");
+        }
+        function buscarContratos() {
+            const fechaInicio = document.getElementById('fechaInicioContrato').value;
+            const fechaFin = document.getElementById('fechaFinContrato').value;
+
+            if (fechaFin < fechaInicio) {
+                alert("La fecha 'Hasta' no puede ser menor que la fecha 'Desde'");
+                return;
+            }
+
+            if (fechaInicio && fechaFin) {
+                const url = `/Contratos/BuscarContratos?desde=${fechaInicio}&hasta=${fechaFin}`;
+
+                fetch(url)
+                    .then(response => response.json())
+                    .then(data => {
+                        console.log("Contratos filtrados:", data);
+                        // Aquí puedes actualizar la tabla con los contratos filtrados
+                        actualizarTablaContratos(data);
+                    })
+                    .catch(error => {
+                        console.error("Error al obtener contratos:", error);
+                    });
+            } else {
+                alert("Por favor, selecciona ambas fechas.");
+            }
+        }
+        function actualizarTablaContratos(contratos) {
+            const tbody = document.querySelector("#tablaContratos tbody");
+
+            if (!tbody) {
+                console.error("No se encontró la tabla de contratos.");
+                return;
+            }
+
+            // Verificamos si vino un error
+            if (contratos.error) {
+                alert("Error desde el servidor: " + contratos.error);
+                return;
+            }
+
+            tbody.innerHTML = "";
+
+            contratos.forEach(contrato => {
+                const fila = `
+        <tr>
+            <td>${contrato.IdContrato}</td>
+            <td>${contrato.NombrePropietario || ''}</td>
+            <td>${contrato.NombreInquilino || ''}</td>
+            <td>${contrato.Direccion}</td>
+            <td>${formatearFecha(contrato.FechaInicio)}</td>
+            <td>${formatearFecha(contrato.FechaFinal)}</td>
+            <td>${contrato.Monto}</td>
+            <td>
+                <a href="/Contratos/Edit/${contrato.IdContrato}" class="btn btn-warning btn-sm">Editar</a>
+                <a href="/Contratos/Delete/${contrato.IdContrato}" class="btn btn-danger btn-sm">Eliminar</a>
+            </td>
+        </tr>
+        `;
+                tbody.innerHTML += fila;
+            });
+        }
+
+
+
         document.addEventListener("DOMContentLoaded", function () {
             // Búsqueda
+
+          
+
+            function actualizarTablaContratos(contratos) {
+                const tablaContratos = document.getElementById('tablaContratos');
+                tablaContratos.innerHTML = '';  // Limpiamos la tabla actual
+
+                contratos.forEach(contrato => {
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+            <td>${contrato.dniPropietario}</td>
+            <td>${contrato.dniInquilino}</td>
+            <td>${new Date(contrato.fechaInicio).toLocaleDateString()}</td>
+            <td>${new Date(contrato.fechaFinal).toLocaleDateString()}</td>
+            <td>${contrato.inmueble.calle}</td>
+            <td><a href="/Contratos/Edit/${contrato.idContrato}" class="btn btn-warning btn-sm">Editar</a> <a href="/Contratos/Delete/${contrato.idContrato}" class="btn btn-danger btn-sm">Eliminar</a></td>
+        `;
+                    tablaContratos.appendChild(row);
+                });
+            }
+
+
+
             document.getElementById("buscador").addEventListener("keyup", function () {
                 var valor = this.value.toLowerCase();
                 var filas = document.querySelectorAll("#tablaDatos tr");
