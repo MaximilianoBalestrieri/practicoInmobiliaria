@@ -1355,12 +1355,15 @@ namespace practicoInmobiliaria.Models
             {
                 conexion.Open();
                 string query = @"
-            SELECT i.*
-            FROM Inmueble i
-            INNER JOIN Contrato c ON i.idInmueble = c.idInmueble
-            WHERE
-                (c.fechaInicio <= @hasta AND c.fechaFinal >= @desde);
-        ";
+        SELECT *
+        FROM Inmueble i
+        WHERE NOT EXISTS (
+            SELECT 1
+            FROM Contrato c
+            WHERE c.idInmueble = i.idInmueble
+              AND c.fechaInicio <= @hasta
+              AND c.fechaFinal >= @desde
+        )";
 
                 using (var comando = new MySqlCommand(query, conexion))
                 {
@@ -1384,22 +1387,14 @@ namespace practicoInmobiliaria.Models
                                 Uso = reader["uso"].ToString(),
                                 Tipo = reader["tipo"].ToString(),
                                 Ambientes = Convert.ToInt32(reader["ambientes"]),
-
-
                                 Latitud = Convert.ToDouble(reader["latitud"]),
                                 Longitud = Convert.ToDouble(reader["longitud"]),
                                 Precio = Convert.ToDouble(reader["precio"]),
-                                // Convertir a booleano de forma más segura
-
                                 ImagenPortada = reader["imagenPortada"].ToString(),
-
                                 Pileta = reader["pileta"].ToString() == "1" || reader["pileta"].ToString().ToLower() == "true",
                                 Parrilla = reader["parrilla"].ToString() == "1" || reader["parrilla"].ToString().ToLower() == "true",
                                 Garage = reader["garage"].ToString() == "1" || reader["garage"].ToString().ToLower() == "true",
                                 Vigente = reader["vigente"].ToString() == "1" || reader["vigente"].ToString().ToLower() == "true",
-
-
-
                             });
                         }
                     }

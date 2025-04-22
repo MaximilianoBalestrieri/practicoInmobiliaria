@@ -60,7 +60,22 @@
     <div class="col-md-3 d-flex align-items-end">
         <button class="btn btn-primary" onclick="buscarContratos()">Buscar Contratos</button>
     </div>
+
 </div>
+
+<div class="filtro-dias-contrato rounded p-3" style="border: 1px solid #ccc; position: absolute; top: 80px; right: 110px; background-color: #f8f9fa;">
+    <h5 style="text-align: center; background-color: black; color: white; padding: 5px; border-radius: 10px;">
+        Filtro por días de vencimiento
+    </h5>
+    <div style="text-align: center;">
+        <label><input type="radio" name="diasFiltro" class="radio-dias" value="30"> Menos de 30 días</label><br>
+        <label><input type="radio" name="diasFiltro" class="radio-dias" value="60"> Menos de 60 días</label><br>
+        <label><input type="radio" name="diasFiltro" class="radio-dias" value="90"> Menos de 90 días</label>
+    </div>
+</div>
+
+
+
 
 
 @if (Model != null && Model.Count > 0)
@@ -92,7 +107,9 @@
                     <td>@contrato.NombreInquilino</td>
                     <td>@contrato.Direccion</td>
                     <td>@contrato.FechaInicio.ToString("dd/MM/yyyy")</td>
-                    <td>@contrato.FechaFinal.ToString("dd/MM/yyyy")</td>
+                    <td data-fecha-final="@contrato.FechaFinal.ToString("yyyy-MM-dd")">
+                        @contrato.FechaFinal.ToString("dd/MM/yyyy")
+                    </td>
                     <td>@contrato.Monto</td>
                     <td class="col-vigente" style="display: none;">@(contrato.Vigente ? "Sí" : "No")</td>
 
@@ -111,11 +128,46 @@
         <button id="nextPagina" class="btn btn-secondary">Siguiente</button>
     </div>
 
+
+
+
     <script>
         function formatearFecha(fechaJson) {
             const fecha = new Date(parseInt(fechaJson.replace("/Date(", "").replace(")/", "")));
             return fecha.toLocaleDateString("es-AR");
         }
+
+                                                              
+
+
+        function buscarInmueblesVacios() {
+            const fechaInicio = document.getElementById('fechaInicioContrato').value;
+            const fechaFin = document.getElementById('fechaFinContrato').value;
+
+            if (fechaFin < fechaInicio) {
+                alert("La fecha 'Hasta' no puede ser menor que la fecha 'Desde'");
+                return;
+            }
+
+            if (!fechaInicio || !fechaFin) {
+                alert("Por favor, selecciona ambas fechas.");
+                return;
+            }
+
+            const url = `/Contratos/InmueblesVacios?desde=${fechaInicio}&hasta=${fechaFin}`;
+
+            fetch(url)
+                .then(response => response.json())
+                .then(data => {
+                    console.log("Inmuebles vacíos:", data);
+                    actualizarTablaInmuebles(data); // Usamos una tabla distinta si querés separar
+                })
+                .catch(error => {
+                    console.error("Error al buscar inmuebles vacíos:", error);
+                });
+        }
+
+
         function buscarContratos() {
             const fechaInicio = document.getElementById('fechaInicioContrato').value;
             const fechaFin = document.getElementById('fechaFinContrato').value;
@@ -160,20 +212,20 @@
 
             contratos.forEach(contrato => {
                 const fila = `
-        <tr>
-            <td>${contrato.IdContrato}</td>
-            <td>${contrato.NombrePropietario || ''}</td>
-            <td>${contrato.NombreInquilino || ''}</td>
-            <td>${contrato.Direccion}</td>
-            <td>${formatearFecha(contrato.FechaInicio)}</td>
-            <td>${formatearFecha(contrato.FechaFinal)}</td>
-            <td>${contrato.Monto}</td>
-            <td>
-                <a href="/Contratos/Edit/${contrato.IdContrato}" class="btn btn-warning btn-sm">Editar</a>
-                <a href="/Contratos/Delete/${contrato.IdContrato}" class="btn btn-danger btn-sm">Eliminar</a>
-            </td>
-        </tr>
-        `;
+                        <tr>
+                            <td>${contrato.IdContrato}</td>
+                            <td>${contrato.NombrePropietario || ''}</td>
+                            <td>${contrato.NombreInquilino || ''}</td>
+                            <td>${contrato.Direccion}</td>
+                            <td>${formatearFecha(contrato.FechaInicio)}</td>
+                            <td>${formatearFecha(contrato.FechaFinal)}</td>
+                            <td>${contrato.Monto}</td>
+                            <td>
+                                <a href="/Contratos/Edit/${contrato.IdContrato}" class="btn btn-warning btn-sm">Editar</a>
+                                <a href="/Contratos/Delete/${contrato.IdContrato}" class="btn btn-danger btn-sm">Eliminar</a>
+                            </td>
+                        </tr>
+                        `;
                 tbody.innerHTML += fila;
             });
         }
@@ -183,7 +235,7 @@
         document.addEventListener("DOMContentLoaded", function () {
             // Búsqueda
 
-          
+
 
             function actualizarTablaContratos(contratos) {
                 const tablaContratos = document.getElementById('tablaContratos');
@@ -192,13 +244,13 @@
                 contratos.forEach(contrato => {
                     const row = document.createElement('tr');
                     row.innerHTML = `
-            <td>${contrato.dniPropietario}</td>
-            <td>${contrato.dniInquilino}</td>
-            <td>${new Date(contrato.fechaInicio).toLocaleDateString()}</td>
-            <td>${new Date(contrato.fechaFinal).toLocaleDateString()}</td>
-            <td>${contrato.inmueble.calle}</td>
-            <td><a href="/Contratos/Edit/${contrato.idContrato}" class="btn btn-warning btn-sm">Editar</a> <a href="/Contratos/Delete/${contrato.idContrato}" class="btn btn-danger btn-sm">Eliminar</a></td>
-        `;
+                            <td>${contrato.dniPropietario}</td>
+                            <td>${contrato.dniInquilino}</td>
+                            <td>${new Date(contrato.fechaInicio).toLocaleDateString()}</td>
+                            <td>${new Date(contrato.fechaFinal).toLocaleDateString()}</td>
+                            <td>${contrato.inmueble.calle}</td>
+                            <td><a href="/Contratos/Edit/${contrato.idContrato}" class="btn btn-warning btn-sm">Editar</a> <a href="/Contratos/Delete/${contrato.idContrato}" class="btn btn-danger btn-sm">Eliminar</a></td>
+                        `;
                     tablaContratos.appendChild(row);
                 });
             }
