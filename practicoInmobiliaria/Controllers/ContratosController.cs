@@ -203,6 +203,21 @@ namespace practicoInmobiliaria.Controllers
         }
 
 
+        [HttpPost]
+        public ActionResult Renovar(Contrato nuevoContrato)
+        {
+            try
+            {
+                ConexionDB db = new ConexionDB();
+                nuevoContrato.Vigente = true;
+                db.AgregarContrato(nuevoContrato); // Asumiendo que tenés un método así
+                return Json(new { success = true });
+            }
+            catch (Exception ex)
+            {
+                return new HttpStatusCodeResult(500, ex.Message);
+            }
+        }
 
 
 

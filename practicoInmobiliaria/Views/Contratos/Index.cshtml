@@ -71,6 +71,9 @@
         <label><input type="radio" name="diasFiltro" class="radio-dias" value="30"> Menos de 30 días</label><br>
         <label><input type="radio" name="diasFiltro" class="radio-dias" value="60"> Menos de 60 días</label><br>
         <label><input type="radio" name="diasFiltro" class="radio-dias" value="90"> Menos de 90 días</label>
+        <div style="text-align: center; margin-top: 10px;">
+            <button id="mostrarTodosBtn" class="btn btn-secondary">Mostrar todos</button>
+        </div>
     </div>
 </div>
 
@@ -101,23 +104,23 @@
         <tbody id="tablaDatos">
             @foreach (var contrato in Model)
             {
-                <tr>
-                    <td>@contrato.IdContrato</td>
-                    <td>@contrato.NombrePropietario</td>
-                    <td>@contrato.NombreInquilino</td>
-                    <td>@contrato.Direccion</td>
-                    <td>@contrato.FechaInicio.ToString("dd/MM/yyyy")</td>
-                    <td data-fecha-final="@contrato.FechaFinal.ToString("yyyy-MM-dd")">
-                        @contrato.FechaFinal.ToString("dd/MM/yyyy")
-                    </td>
-                    <td>@contrato.Monto</td>
-                    <td class="col-vigente" style="display: none;">@(contrato.Vigente ? "Sí" : "No")</td>
+               <tr class="fila-contrato" data-fecha-final="@contrato.FechaFinal.ToString("yyyy-MM-dd")">
+                   <td>@contrato.IdContrato</td>
+                   <td>@contrato.NombrePropietario</td>
+                   <td>@contrato.NombreInquilino</td>
+                   <td>@contrato.Direccion</td>
+                   <td>@contrato.FechaInicio.ToString("dd/MM/yyyy")</td>
+                   <td data-fecha-final="@contrato.FechaFinal.ToString("yyyy-MM-dd")">
+                       @contrato.FechaFinal.ToString("dd/MM/yyyy")
+                   </td>
+                   <td>@contrato.Monto</td>
+                   <td class="col-vigente" style="display: none;">@(contrato.Vigente ? "Sí" : "No")</td>
 
-                    <td>
-                        <a href="@Url.Action("Edit", "Contratos", new { id = contrato.IdContrato })" class="btn btn-warning btn-sm">Ver/Editar</a>
-                        <a href="@Url.Action("Delete", "Contratos", new { id = contrato.IdContrato })" class="btn btn-danger btn-sm">Eliminar</a>
-                    </td>
-                </tr>
+                   <td>
+                       <a href="@Url.Action("Edit", "Contratos", new { id = contrato.IdContrato })" class="btn btn-warning btn-sm">Ver/Editar</a>
+                       <a href="@Url.Action("Delete", "Contratos", new { id = contrato.IdContrato })" class="btn btn-danger btn-sm">Eliminar</a>
+                   </td>
+               </tr>
             }
         </tbody>
     </table>
@@ -137,8 +140,48 @@
             return fecha.toLocaleDateString("es-AR");
         }
 
-                                                              
+        document.addEventListener("DOMContentLoaded", function () {
+            const radios = document.querySelectorAll('.radio-dias');
+            const mostrarTodosBtn = document.getElementById('mostrarTodosBtn');
 
+            radios.forEach(radio => {
+                radio.addEventListener('change', function () {
+                    const valor = parseInt(this.value);
+                    const hoy = new Date();
+
+                    document.querySelectorAll('.fila-contrato').forEach(fila => {
+                        const fechaFinalStr = fila.getAttribute('data-fecha-final');
+                        if (!fechaFinalStr) return;
+
+                        const fechaFinal = new Date(fechaFinalStr);
+                        const diferenciaMs = fechaFinal - hoy;
+                        const diferenciaDias = Math.ceil(diferenciaMs / (1000 * 60 * 60 * 24));
+
+                        let mostrar = false;
+
+                        if (valor === 30 && diferenciaDias >= 0 && diferenciaDias <= 30) {
+                            mostrar = true;
+                        } else if (valor === 60 && diferenciaDias > 30 && diferenciaDias <= 60) {
+                            mostrar = true;
+                        } else if (valor === 90 && diferenciaDias > 60 && diferenciaDias <= 90) {
+                            mostrar = true;
+                        }
+
+                        fila.style.display = mostrar ? '' : 'none';
+                    });
+                });
+            });
+
+            // Botón para mostrar todos los contratos
+            mostrarTodosBtn.addEventListener('click', function () {
+                document.querySelectorAll('.fila-contrato').forEach(fila => {
+                    fila.style.display = '';
+                });
+
+                // Desmarcar todos los radios
+                radios.forEach(r => r.checked = false);
+            });
+        });
 
         function buscarInmueblesVacios() {
             const fechaInicio = document.getElementById('fechaInicioContrato').value;
