@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data.SqlClient;
 using System.Diagnostics;
 using System.Diagnostics.Contracts;
 using System.Linq;
@@ -867,6 +868,7 @@ namespace practicoInmobiliaria.Models
                     contrato = new Contrato
                     {
                         IdContrato = reader.GetInt32("idContrato"),
+                        IdInmueble = reader.GetInt32("idInmueble"), // 💥 esto es lo que faltaba
                         DniPropietario = reader.GetString("dniPropietario"),
                         NombrePropietario = reader.GetString("nombrePropietario"),
                         DniInquilino = reader.GetString("dniInquilino"),
@@ -882,6 +884,7 @@ namespace practicoInmobiliaria.Models
 
             return contrato;
         }
+
 
         // Método para agregar un nuevo contrato
         public bool AgregarContrato(Contrato contrato)
@@ -1507,6 +1510,36 @@ namespace practicoInmobiliaria.Models
         }
 
 
+        public void MarcarComoNoVigente(int idContrato)
+        {
+            using (var db = new SqlConnection(_connectionString))  // Asegúrate de usar tu cadena de conexión
+            {
+                db.Open();
+                var query = "UPDATE Contrato SET Vigente = 0 WHERE IdContrato = @IdContrato";
+
+                var command = new SqlCommand(query, db);
+                command.Parameters.AddWithValue("@IdContrato", idContrato);
+
+                command.ExecuteNonQuery();
+            }
+        }
+
+        public void MarcarContratoComoNoVigente(int idContrato)
+        {
+            using (var conn = ObtenerConexion())
+            {
+                conn.Open();
+                string query = "UPDATE Contrato SET Vigente = 0 WHERE idContrato = @id";
+                using (var cmd = new MySqlCommand(query, conn))
+                {
+                    cmd.Parameters.AddWithValue("@id", idContrato);
+                    cmd.ExecuteNonQuery();
+                }
+            }
+        }
+
+
+
     }
-    }
+}
 

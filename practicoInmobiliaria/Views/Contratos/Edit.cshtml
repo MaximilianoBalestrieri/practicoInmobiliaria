@@ -6,6 +6,17 @@
 
 <head>
     <style>
+
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 9999;
+        }
+
         th {
             text-align: center;
             background-color: #d4edda; /* verde claro SIEMPRE */
@@ -123,12 +134,15 @@
             padding-top: 4px !important;
             padding-bottom: 4px !important;
         }
+
+       
+
     </style>
 
 </head>
 <body>
 
-    <h2>Editar Contrato</h2>
+
 
 
     @using (Html.BeginForm("Edit", "Contratos", FormMethod.Post, new { @class = "form-horizontal", role = "form" }))
@@ -137,6 +151,31 @@
 
         <!-- Campo oculto para IdContrato -->
         @Html.HiddenFor(model => model.IdContrato)
+
+        <div class="row align-items-center mb-3">
+            <div class="col-auto">
+                <h2>Editar Contrato</h2>
+            </div>
+            <div class="col-auto">
+                <button type="button" class="btn btn-primary btn-sm btn-renovar"
+                        onclick="abrirModalRenovacion(this)"
+                        data-id-contrato="@Model.IdContrato"
+                        data-id-inmueble="@Model.IdInmueble"
+                        data-direccion="@Model.Direccion"
+                        data-dni-propietario="@Model.DniPropietario"
+                        data-nombre-propietario="@Model.NombrePropietario"
+                        data-dni-inquilino="@Model.DniInquilino"
+                        data-nombre-inquilino="@Model.NombreInquilino"
+                        data-fecha-inicio="@Model.FechaInicio.ToString("yyyy-MM-dd")"
+                        data-fecha-final="@Model.FechaFinal.ToString("yyyy-MM-dd")"
+                        data-monto="@Model.Monto">
+                    Renovación
+                   
+
+                </button>
+            </div>
+        </div>
+
 
 
 
@@ -248,6 +287,80 @@
 
         </div>
     }
+
+
+    <!--  -------------------------------------  -->
+    <!-- Modal Renovación -->
+    <div class="modal fade" id="modalRenovacion" tabindex="-1" aria-labelledby="modalRenovacionLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" style="max-width: 500px;">
+            <!-- Cambié el tamaño aquí -->
+            <div class="modal-content">
+                <input type="hidden" name="__RequestVerificationToken" value="@Html.AntiForgeryToken()" />
+
+                <div class="modal-header">
+                    <h5 class="modal-title" id="modalRenovacionLabel">Renovación de Contrato</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                </div>
+                <div class="modal-body">
+                    <!-- DNI Propietario y Nombre Propietario -->
+                    <div class="row align-items-end mb-3 g-2">
+                        <div class="col-auto d-flex flex-column">
+                            <label class="form-label">DNI Propietario</label>
+                            <input type="text" class="form-control form-control-sm" id="dniPropietarioRenovacion" style="width: 150px;">
+                        </div>
+                        <div class="col-auto d-flex flex-column">
+                            <label class="form-label">Nombre Propietario</label>
+                            <input type="text" class="form-control form-control-sm" id="nombrePropietarioRenovacion" style="width: 300px;">
+                        </div>
+                    </div>
+
+                    <!-- DNI Inquilino y Nombre Inquilino -->
+                    <div class="row align-items-end mb-3 g-2">
+                        <div class="col-auto d-flex flex-column">
+                            <label class="form-label">DNI Inquilino</label>
+                            <input type="text" class="form-control form-control-sm" id="dniInquilinoRenovacion" style="width: 150px;">
+                        </div>
+                        <div class="col-auto d-flex flex-column">
+                            <label class="form-label">Nombre Inquilino</label>
+                            <input type="text" class="form-control form-control-sm" id="nombreInquilinoRenovacion" style="width: 300px;">
+                        </div>
+                    </div>
+                    <!-- Dirección -->
+                    <div class="row align-items-end mb-3 g-2">
+                        <div class="col-12 d-flex flex-column">
+                            <label class="form-label">Dirección</label>
+                            <input type="text" class="form-control form-control-sm" id="direccionRenovacion" readonly>
+                        </div>
+                    </div>
+                    <!-- Nueva Fecha Inicio, Fecha Final y Monto -->
+                    <div class="row align-items-end mb-3 g-2">
+                        <div class="col-auto d-flex flex-column">
+                            <label class="form-label">Nueva Fecha Inicio</label>
+                            <input type="date" class="form-control form-control-sm" id="nuevaFechaInicio" style="width: 150px;">
+                        </div>
+
+                        <div class="col-auto d-flex flex-column">
+                            <label class="form-label">Nueva Fecha Final</label>
+                            <input type="date" class="form-control form-control-sm" id="nuevaFechaFinal" style="width: 150px;">
+                        </div>
+                        <div class="col-auto d-flex flex-column">
+                            <label class="form-label">Nuevo Monto</label>
+                            <input type="number" class="form-control form-control-sm" id="nuevoMonto" style="width: 100px;" step="0.01">
+                        </div>
+                    </div>
+                    <!-- Campo oculto para IdInmueble -->
+                    <input type="hidden" id="idInmuebleRenovacion">
+                </div>
+                <div class="modal-footer d-flex justify-content-center">
+                    <button type="submit" class="btn btn-success" id="btnGuardarRenovacion">Crear Renovación</button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <!-- --------------------------------------  -->
     <!-- CIERRE del formulario principal -->
     <!-- Acá empieza el divPagos, ya fuera del form principal -->
     <div id="divPagos" class="fixed-right">
@@ -368,6 +481,115 @@
         }
     });
 }
+
+        function abrirModalRenovacion(btn) {
+            const dniPropietario = btn.dataset.dniPropietario || "No disponible";
+            const nombrePropietario = btn.dataset.nombrePropietario || "No disponible";
+            const dniInquilino = btn.dataset.dniInquilino || "No disponible";
+            const nombreInquilino = btn.dataset.nombreInquilino || "No disponible";
+            const fechaInicio = btn.dataset.fechaInicio || "No disponible";
+            const fechaFinal = btn.dataset.fechaFinal || "No disponible";
+            const monto = btn.dataset.monto || "0";
+            const direccion = btn.dataset.direccion || "No disponible";
+            const idInmueble = btn.dataset.idInmueble || "No disponible";
+
+            // Imprimir los valores antes de que se envíen
+            console.log("Datos que se enviarán al servidor:");
+            console.log("DNI Propietario:", dniPropietario);
+            console.log("Nombre Propietario:", nombrePropietario);
+            console.log("DNI Inquilino:", dniInquilino);
+            console.log("Nombre Inquilino:", nombreInquilino);
+            console.log("Fecha Inicio:", fechaInicio);
+            console.log("Fecha Final:", fechaFinal);
+            console.log("Monto:", monto);
+            console.log("Dirección:", direccion);
+            console.log("ID Inmueble:", idInmueble);
+
+            // Asignar los valores a los inputs
+            document.getElementById("dniPropietarioRenovacion").value = dniPropietario;
+            document.getElementById("nombrePropietarioRenovacion").value = nombrePropietario;
+            document.getElementById("dniInquilinoRenovacion").value = dniInquilino;
+            document.getElementById("nombreInquilinoRenovacion").value = nombreInquilino;
+            document.getElementById("nuevaFechaInicio").value = fechaInicio;
+            document.getElementById("nuevaFechaFinal").value = fechaFinal;
+            document.getElementById("nuevoMonto").value = monto;
+            document.getElementById("direccionRenovacion").value = direccion;
+            document.getElementById("idInmuebleRenovacion").value = idInmueble;
+
+            // Mostrar el modal
+            const modal = new bootstrap.Modal(document.getElementById("modalRenovacion"));
+            modal.show();
+        }
+
+
+
+
+        // Escuchar clic en el botón Renovación
+        document.addEventListener("DOMContentLoaded", function () {
+            document.querySelectorAll('.btn-renovar').forEach(btn => {
+                btn.addEventListener('click', function () {
+                    abrirModalRenovacion(this);
+                });
+            });
+        });
+
+
+
+        document.getElementById("btnGuardarRenovacion").addEventListener("click", async function () {
+            const idContratoAnterior = document.querySelector(".btn-renovar").dataset.idContrato;
+
+            const nuevoContrato = {
+                IdContratoAnterior: idContratoAnterior,
+                DniPropietario: document.getElementById("dniPropietarioRenovacion").value,
+                NombrePropietario: document.getElementById("nombrePropietarioRenovacion").value,
+                DniInquilino: document.getElementById("dniInquilinoRenovacion").value,
+                NombreInquilino: document.getElementById("nombreInquilinoRenovacion").value,
+                FechaInicio: document.getElementById("nuevaFechaInicio").value,
+                FechaFinal: document.getElementById("nuevaFechaFinal").value,
+                Monto: document.getElementById("nuevoMonto").value,
+                IdInmueble: document.querySelector(".btn-renovar").dataset.idInmueble,
+                Direccion: document.getElementById("direccionRenovacion").value,
+                Vigente: true
+            };
+
+            try {
+                const token = document.querySelector('input[name="__RequestVerificationToken"]').value;
+                const formData = new FormData();
+                formData.append('DniPropietario', document.getElementById("dniPropietarioRenovacion").value);
+                formData.append('NombrePropietario', document.getElementById("nombrePropietarioRenovacion").value);
+                formData.append('DniInquilino', document.getElementById("dniInquilinoRenovacion").value);
+                formData.append('NombreInquilino', document.getElementById("nombreInquilinoRenovacion").value);
+                formData.append('FechaInicio', document.getElementById("nuevaFechaInicio").value);
+                formData.append('FechaFinal', document.getElementById("nuevaFechaFinal").value);
+                formData.append('Monto', document.getElementById("nuevoMonto").value);
+                formData.append('IdInmueble', document.querySelector(".btn-renovar").dataset.idInmueble);
+                formData.append('Direccion', document.getElementById("direccionRenovacion").value);
+                formData.append('Vigente', true);  // Este es un valor fijo según lo que mencionaste, podrías ponerlo como variable si se necesita.
+                formData.append('__RequestVerificationToken', token);
+
+                const response = await fetch('/Contratos/CrearRenovacion', {
+                    method: 'POST',
+                    body: formData // No necesitas agregar 'Content-Type', fetch lo maneja automáticamente cuando usas FormData
+                });
+
+                if (response.ok) {
+                    alert("Contrato renovado con éxito");
+                    location.reload();
+                } else {
+                    const errorResponse = await response.text();
+                    console.error("Error al renovar el contrato:", errorResponse);
+                    alert("Hubo un problema con la renovación");
+                }
+            } catch (error) {
+                console.error("Error:", error);
+                alert("Error al intentar renovar el contrato ");
+            }
+        });
+
+
+
+
+
 
 
     function crearPago(event) {
@@ -518,7 +740,7 @@
             });
     }
 
-    // 💖 ORDENAMIENTO DE TABLA
+    // ORDENAMIENTO DE TABLA
     document.addEventListener("DOMContentLoaded", () => {
         const tabla = document.querySelector("table");
         const headers = tabla.querySelectorAll("th");

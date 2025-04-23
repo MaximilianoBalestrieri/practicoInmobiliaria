@@ -5,9 +5,9 @@ using System.Web;
 
 namespace practicoInmobiliaria.Models
 {
-	public class Contrato
+	public class RenovacionContratoViewModel
 	{
-        public int IdContrato { get; set; }
+        public int IdContratoAnterior { get; set; }
         public string DniPropietario { get; set; }
         public string NombrePropietario { get; set; }
         public string DniInquilino { get; set; }
@@ -17,18 +17,5 @@ namespace practicoInmobiliaria.Models
         public decimal Monto { get; set; }
         public int IdInmueble { get; set; }
         public string Direccion { get; set; }
-        public bool Vigente { get; set; }
-        public string DireccionSeleccionada { get; set; }
-
-
     }
-
-    public class NuevaRenovacionModel
-    {
-        public Contrato NuevoContrato { get; set; }
-        public int ContratoAnteriorId { get; set; }
-    }
-
-
-
 }

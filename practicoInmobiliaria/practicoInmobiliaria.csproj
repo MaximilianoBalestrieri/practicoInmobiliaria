@@ -526,6 +526,7 @@
     <Compile Include="Models\Inquilino.cs" />
     <Compile Include="Models\pago.cs" />
     <Compile Include="Models\Propietario.cs" />
+    <Compile Include="Models\RenovacionContratoViewModel.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="WebApplication.cs" />

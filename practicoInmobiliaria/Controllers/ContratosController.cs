@@ -220,6 +220,61 @@ namespace practicoInmobiliaria.Controllers
         }
 
 
+        [HttpPost]
+        public ActionResult GuardarRenovacion(NuevaRenovacionModel datos)
+        {
+            var nuevo = new Contrato
+            {
+                DniPropietario = datos.NuevoContrato.DniPropietario,
+                NombrePropietario = datos.NuevoContrato.NombrePropietario,
+                DniInquilino = datos.NuevoContrato.DniInquilino,
+                NombreInquilino = datos.NuevoContrato.NombreInquilino,
+                FechaInicio = datos.NuevoContrato.FechaInicio,
+                FechaFinal = datos.NuevoContrato.FechaFinal,
+                Monto = datos.NuevoContrato.Monto,
+                IdInmueble = datos.NuevoContrato.IdInmueble,
+                Direccion = datos.NuevoContrato.Direccion,
+                Vigente = true
+            };
+
+            var db = new ConexionDB();
+            db.AgregarContrato(nuevo);
+            db.MarcarComoNoVigente(datos.ContratoAnteriorId); // Método que deberías tener para actualizar
+
+            return new HttpStatusCodeResult(200);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public ActionResult CrearRenovacion(RenovacionContratoViewModel data)
+        {
+            try
+            {
+                int idAnterior = data.IdContratoAnterior;
+                Contrato nuevoContrato = new Contrato
+                {
+                    DniPropietario = data.DniPropietario,
+                    NombrePropietario = data.NombrePropietario,
+                    DniInquilino = data.DniInquilino,
+                    NombreInquilino = data.NombreInquilino,
+                    FechaInicio = data.FechaInicio,
+                    FechaFinal = data.FechaFinal,
+                    Monto = data.Monto,
+                    IdInmueble = data.IdInmueble,
+                    Direccion = data.Direccion,
+                    Vigente = true
+                };
+
+                db.MarcarContratoComoNoVigente(idAnterior);
+                db.AgregarContrato(nuevoContrato);
+
+                return Json(new { success = true });
+            }
+            catch (Exception ex)
+            {
+                return new HttpStatusCodeResult(500, "Error al renovar: " + ex.Message);
+            }
+        }
 
 
 
